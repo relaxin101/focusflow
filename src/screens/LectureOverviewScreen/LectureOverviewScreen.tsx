@@ -24,18 +24,26 @@ export const LectureOverviewScreen = (): JSX.Element => {
   // Filter lectures based on search query and filters
   const filteredLectures = useMemo(() => {
     if (!course) return [];
-    return course.lectures.filter(lecture => {
-      const matchesSearch = 
-        lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lecture.date.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // A lecture is considered unwatched if it has notifications or is live
-      const isUnwatched = lecture.hasNotification || lecture.isLive;
-      const matchesLiveFilter = !filters.showLive || lecture.isLive;
-      const matchesUnwatchedFilter = !filters.showUnwatched || isUnwatched;
+    return course.lectures
+      .filter(lecture => {
+        const matchesSearch = 
+          lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          lecture.date.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        // A lecture is considered unwatched if it has notifications or is live
+        const isUnwatched = lecture.hasNotification || lecture.isLive;
+        const matchesLiveFilter = !filters.showLive || lecture.isLive;
+        const matchesUnwatchedFilter = !filters.showUnwatched || isUnwatched;
 
-      return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
-    });
+        return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
+      })
+      .sort((a, b) => {
+        const [dayA, monthA, yearA] = a.date.split('.').map(Number);
+        const [dayB, monthB, yearB] = b.date.split('.').map(Number);
+        const dateA = new Date(yearA, monthA - 1, dayA);
+        const dateB = new Date(yearB, monthB - 1, dayB);
+        return dateB.getTime() - dateA.getTime();
+      });
   }, [course, searchQuery, filters]);
 
   return (
