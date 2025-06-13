@@ -86,11 +86,13 @@ export const LectureDetailScreen = (): JSX.Element => {
     window.onYouTubeIframeAPIReady = () => {
       playerRef.current = new window.YT.Player('youtube-player', {
         videoId: lecture?.videoId,
-        height: '200',
+        height: '100%',
         width: '100%',
         playerVars: {
           'playsinline': 1,
-          'controls': 1
+          'controls': 1,
+          'cc_load_policy': 1,
+          'cc_lang_pref': 'en'
         },
         events: {
           'onReady': () => {
@@ -319,14 +321,8 @@ export const LectureDetailScreen = (): JSX.Element => {
         {showTranscript && (
           <div className="absolute inset-0 w-full h-full overflow-y-auto p-4 text-white bg-black/90">
             <h2 className="text-xl font-bold mb-4">Transcript</h2>
-            <p className="text-sm leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
-            <p className="text-sm leading-relaxed mt-4">
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
-            <p className="text-sm leading-relaxed mt-4">
-              Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+            <p className="text-sm text-gray-400">
+              YouTube's built-in transcript feature is now enabled. Click the CC button in the video player to view the transcript.
             </p>
           </div>
         )}
