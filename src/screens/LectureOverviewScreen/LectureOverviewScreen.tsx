@@ -9,6 +9,7 @@ import { useCourse } from "../../context/CourseContext";
 export const LectureOverviewScreen = (): JSX.Element => {
   const { courseId } = useParams<{ courseId: string }>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({ showLive: false, showUnwatched: false });
   const { courseData, toggleLectureFavorite } = useCourse();
 
   const course = courseData[courseId || ""];
@@ -20,14 +21,22 @@ export const LectureOverviewScreen = (): JSX.Element => {
     }
   }, [courseId, toggleLectureFavorite]);
 
-  // Filter lectures based on search query
+  // Filter lectures based on search query and filters
   const filteredLectures = useMemo(() => {
     if (!course) return [];
-    return course.lectures.filter(lecture =>
-      lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lecture.date.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [course, searchQuery]);
+    return course.lectures.filter(lecture => {
+      const matchesSearch = 
+        lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lecture.date.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // A lecture is considered unwatched if it has notifications or if the course is live
+      const isUnwatched = lecture.hasNotification || course.isLive;
+      const matchesLiveFilter = !filters.showLive || course.isLive;
+      const matchesUnwatchedFilter = !filters.showUnwatched || isUnwatched;
+
+      return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
+    });
+  }, [course, searchQuery, filters]);
 
   return (
     <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
@@ -39,6 +48,8 @@ export const LectureOverviewScreen = (): JSX.Element => {
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search lectures..."
+            filters={filters}
+            onFilterChange={setFilters}
           />
         </div>
 
@@ -65,7 +76,7 @@ export const LectureOverviewScreen = (): JSX.Element => {
                 title={lecture.title}
                 date={lecture.date}
                 isFavorited={lecture.isFavorited}
-                hasNotification={lecture.hasNotification}
+                hasNotification={lecture.hasNotification || course.isLive}
                 onToggleFavorite={handleToggleFavorite}
               />
             ))}

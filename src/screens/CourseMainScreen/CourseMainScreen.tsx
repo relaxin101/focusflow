@@ -9,6 +9,7 @@ import { useCourse } from "../../context/CourseContext";
 
 export const CourseMainScreen = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({ showLive: false, showUnwatched: false });
   const { courseData, toggleCoursePin } = useCourse();
 
   // Filter and sort courses
@@ -17,21 +18,28 @@ export const CourseMainScreen = (): JSX.Element => {
       id,
       title: course.title,
       isLive: false, // You might want to add this to the Course interface if needed
-      notifications: 0, // You might want to add this to the Course interface if needed
-      isPinned: course.isPinned
+      notifications: course.lectures.filter(l => l.hasNotification).length,
+      isPinned: course.isPinned,
+      hasUnwatchedContent: course.lectures.some(l => l.hasNotification)
     }));
 
-    const filtered = courses.filter(course => 
-      course.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filtered = courses.filter(course => {
+      const matchesSearch = 
+        course.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.title.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesLiveFilter = !filters.showLive || course.isLive;
+      const matchesUnwatchedFilter = !filters.showUnwatched || course.hasUnwatchedContent;
+
+      return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
+    });
 
     return filtered.sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
       return 0;
     });
-  }, [courseData, searchQuery]);
+  }, [courseData, searchQuery, filters]);
 
   return (
     <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
@@ -43,6 +51,8 @@ export const CourseMainScreen = (): JSX.Element => {
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search courses..."
+            filters={filters}
+            onFilterChange={setFilters}
           />
         </div>
 
@@ -63,6 +73,8 @@ export const CourseMainScreen = (): JSX.Element => {
                 title={course.title}
                 isPinned={course.isPinned}
                 onTogglePin={() => toggleCoursePin(course.id)}
+                notifications={course.notifications}
+                isLive={course.isLive}
               />
             ))}
           </div>

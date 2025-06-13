@@ -12,6 +12,7 @@ interface Course {
   title: string;
   lectures: Lecture[];
   isPinned: boolean;
+  isLive?: boolean;
 }
 
 interface CourseData {
@@ -32,7 +33,8 @@ const initialCourseData: CourseData = {
       { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false },
       { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true },
     ],
-    isPinned: true
+    isPinned: true,
+    isLive: true
   },
   "185.A92": {
     title: "Introduction to Programming 2",
@@ -41,7 +43,8 @@ const initialCourseData: CourseData = {
       { id: "2", title: "Data Structures", date: "12.05.2025", isFavorited: true },
       { id: "3", title: "Algorithms", date: "08.05.2025", isFavorited: false },
     ],
-    isPinned: true
+    isPinned: true,
+    isLive: false
   },
   "186.866": {
     title: "Algorithms and Data Structures",
@@ -50,7 +53,8 @@ const initialCourseData: CourseData = {
       { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true },
       { id: "3", title: "Dynamic Programming", date: "14.05.2025", isFavorited: false },
     ],
-    isPinned: true
+    isPinned: true,
+    isLive: false
   }
 };
 

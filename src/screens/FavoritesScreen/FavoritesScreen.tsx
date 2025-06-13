@@ -19,6 +19,7 @@ interface Lecture {
 
 export const FavoritesScreen = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({ showLive: false, showUnwatched: false });
   const { courseData, toggleLectureFavorite } = useCourse();
 
   // Get all favorited lectures from all courses
@@ -40,15 +41,24 @@ export const FavoritesScreen = (): JSX.Element => {
     return allLectures;
   }, [courseData]);
 
-  // Filter favorite lectures based on search query
+  // Filter favorite lectures based on search query and filters
   const filteredFavoriteLectures = useMemo(() => {
-    return favoriteLectures.filter(lecture =>
-      lecture.courseId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lecture.courseTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lecture.date.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [favoriteLectures, searchQuery]);
+    return favoriteLectures.filter(lecture => {
+      const matchesSearch = 
+        lecture.courseId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lecture.courseTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lecture.date.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const course = courseData[lecture.courseId];
+      // A lecture is considered unwatched if it has notifications or if the course is live
+      const isUnwatched = lecture.hasNotification || course.isLive;
+      const matchesLiveFilter = !filters.showLive || course.isLive;
+      const matchesUnwatchedFilter = !filters.showUnwatched || isUnwatched;
+
+      return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
+    });
+  }, [favoriteLectures, searchQuery, filters, courseData]);
 
   // Handle lecture favorite toggle
   const handleToggleFavorite = (lectureId: string, courseId: string) => {
@@ -65,6 +75,8 @@ export const FavoritesScreen = (): JSX.Element => {
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search favorites..."
+            filters={filters}
+            onFilterChange={setFilters}
           />
         </div>
 
@@ -79,18 +91,21 @@ export const FavoritesScreen = (): JSX.Element => {
         ) : (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-black mb-4">Favorite Lectures</h2>
-            {filteredFavoriteLectures.map((lecture) => (
-              <LectureCard
-                key={`${lecture.courseId}-${lecture.id}`}
-                id={lecture.id}
-                courseId={lecture.courseId}
-                title={lecture.title}
-                date={lecture.date}
-                isFavorited={lecture.isFavorited}
-                hasNotification={lecture.hasNotification}
-                onToggleFavorite={() => handleToggleFavorite(lecture.id, lecture.courseId)}
-              />
-            ))}
+            {filteredFavoriteLectures.map((lecture) => {
+              const course = courseData[lecture.courseId];
+              return (
+                <LectureCard
+                  key={`${lecture.courseId}-${lecture.id}`}
+                  id={lecture.id}
+                  courseId={lecture.courseId}
+                  title={lecture.title}
+                  date={lecture.date}
+                  isFavorited={lecture.isFavorited}
+                  hasNotification={lecture.hasNotification || course.isLive}
+                  onToggleFavorite={() => handleToggleFavorite(lecture.id, lecture.courseId)}
+                />
+              );
+            })}
           </div>
         )}
       </main>
