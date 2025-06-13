@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeftIcon, StarIcon, HomeIcon, UserIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { SearchBar } from "../../components/SearchBar/SearchBar";
 
 interface FavoriteLecture {
   id: string;
@@ -13,6 +14,8 @@ interface FavoriteLecture {
 }
 
 export const FavoritesScreen = (): JSX.Element => {
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Mock favorited lectures data - in a real app this would come from a global state or API
   const [favoriteLectures, setFavoriteLectures] = useState<FavoriteLecture[]>([
     {
@@ -38,6 +41,16 @@ export const FavoritesScreen = (): JSX.Element => {
     },
   ]);
 
+  // Filter favorite lectures based on search query
+  const filteredFavoriteLectures = useMemo(() => {
+    return favoriteLectures.filter(lecture =>
+      lecture.courseId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lecture.courseTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lecture.lectureTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lecture.date.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [favoriteLectures, searchQuery]);
+
   return (
     <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
       {/* Header */}
@@ -48,20 +61,29 @@ export const FavoritesScreen = (): JSX.Element => {
         <h1 className="text-xl font-semibold text-black">Favorites</h1>
       </header>
 
+      {/* Search */}
+      <div className="fixed w-full max-w-[393px] h-[50px] top-[60px] left-1/2 -translate-x-1/2 bg-[#5586c94c] px-4">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search favorites..."
+        />
+      </div>
+
       {/* Favorites list */}
-      <main className="w-full h-[calc(100vh-120px)] mt-[60px] overflow-y-auto p-4">
-        {favoriteLectures.length === 0 ? (
+      <main className="w-full h-[calc(100vh-170px)] mt-[110px] overflow-y-auto p-4">
+        {filteredFavoriteLectures.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <StarIcon className="w-16 h-16 text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg">No favorite lectures yet</p>
+            <p className="text-gray-500 text-lg">No favorite lectures found</p>
             <p className="text-gray-400 text-sm mt-2">
-              Star lectures from course screens to see them here
+              {searchQuery ? "Try a different search term" : "Star lectures from course screens to see them here"}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-black mb-4">Favorite Lectures</h2>
-            {favoriteLectures.map((lecture) => (
+            {filteredFavoriteLectures.map((lecture) => (
               <Card key={lecture.id} className="border border-gray-200 shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">

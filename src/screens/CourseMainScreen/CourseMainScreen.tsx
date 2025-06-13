@@ -1,19 +1,20 @@
 import {
   FilterIcon,
   HomeIcon,
-  SearchIcon,
   StarIcon,
   UserIcon,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
+import { SearchBar } from "../../components/SearchBar/SearchBar";
 
 export const CourseMainScreen = (): JSX.Element => {
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Course data with pin state management
   const [courses, setCourses] = useState([
     {
@@ -50,25 +51,29 @@ export const CourseMainScreen = (): JSX.Element => {
     );
   };
 
-  // Sort courses: pinned first, then unpinned
-  const sortedCourses = [...courses].sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
-    if (!a.isPinned && b.isPinned) return 1;
-    return 0;
-  });
+  // Filter and sort courses
+  const filteredAndSortedCourses = useMemo(() => {
+    const filtered = courses.filter(course => 
+      course.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return filtered.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return 0;
+    });
+  }, [courses, searchQuery]);
 
   return (
     <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
       {/* SearchIcon header */}
       <header className="fixed w-full max-w-[393px] h-[60px] top-0 left-1/2 -translate-x-1/2 bg-[#5586c94c]">
         <div className="absolute w-[336px] h-[30px] top-4 left-1/2 -translate-x-1/2">
-          <div className="relative w-[334px] h-[30px] bg-celestial-blue rounded-[5px] border-b [border-bottom-style:solid] border-[#000000cc] flex items-center px-2">
-            <Input
-              className="h-[30px] border-none bg-transparent pl-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-              placeholder="Search"
-            />
-            <SearchIcon className="w-6 h-6 text-black" />
-          </div>
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
         </div>
 
         <Button
@@ -81,7 +86,7 @@ export const CourseMainScreen = (): JSX.Element => {
 
       {/* Course list */}
       <main className="w-full h-[calc(100vh-120px)] mt-[60px] overflow-y-auto">
-        {sortedCourses.slice(0, 3).map((course, index) => (
+        {filteredAndSortedCourses.map((course, index) => (
           <Card
             key={course.id}
             className="w-[372px] h-[198px] mx-auto mb-5 border-none shadow-none"

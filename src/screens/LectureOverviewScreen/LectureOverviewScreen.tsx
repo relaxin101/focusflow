@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeftIcon, FilterIcon, SearchIcon, StarIcon, HomeIcon, UserIcon, PlayIcon } from "lucide-react";
+import { ArrowLeftIcon, FilterIcon, StarIcon, HomeIcon, UserIcon, PlayIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+import { SearchBar } from "../../components/SearchBar/SearchBar";
 
 interface Lecture {
   id: string;
@@ -15,6 +15,7 @@ interface Lecture {
 
 export const LectureOverviewScreen = (): JSX.Element => {
   const { courseId } = useParams<{ courseId: string }>();
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Mock course data
   const courseData = {
@@ -46,6 +47,14 @@ export const LectureOverviewScreen = (): JSX.Element => {
 
   const course = courseData[courseId as keyof typeof courseData];
   const [lectures, setLectures] = useState<Lecture[]>(course?.lectures || []);
+
+  // Filter lectures based on search query
+  const filteredLectures = useMemo(() => {
+    return lectures.filter(lecture =>
+      lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lecture.date.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [lectures, searchQuery]);
 
   // Toggle lecture favorite status
   const toggleLectureFavorite = (lectureId: string) => {
@@ -84,13 +93,10 @@ export const LectureOverviewScreen = (): JSX.Element => {
 
       {/* Search and Filter */}
       <div className="fixed w-full max-w-[393px] h-[50px] top-[60px] left-1/2 -translate-x-1/2 bg-[#5586c94c] px-2 flex items-center space-x-2">
-        <div className="relative flex-1 h-[30px] bg-celestial-blue rounded-[5px] border-b [border-bottom-style:solid] border-[#000000cc] flex items-center px-2">
-          <Input
-            className="h-[30px] border-none bg-transparent pl-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
-            placeholder="Search"
-          />
-          <SearchIcon className="w-5 h-5 text-black" />
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
         <Button
           variant="ghost"
           className="w-[30px] h-[30px] bg-celestial-blue rounded-[5px] p-0 flex items-center justify-center"
@@ -109,7 +115,7 @@ export const LectureOverviewScreen = (): JSX.Element => {
       {/* Lectures List */}
       <main className="w-full h-[calc(100vh-170px)] mt-[170px] overflow-y-auto px-4">
         <div className="space-y-4">
-          {lectures.map((lecture) => (
+          {filteredLectures.map((lecture) => (
             <Card key={lecture.id} className="border border-gray-200 shadow-sm">
               <CardContent className="p-0">
                 {/* Video thumbnail area - now clickable */}
