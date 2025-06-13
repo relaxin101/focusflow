@@ -367,39 +367,36 @@ export const LectureDetailScreen = (): JSX.Element => {
       {/* Timeline & Controls */}
       <div className="w-full h-[calc(100vh-300px)] flex flex-col bg-[#8bb3e0]">
         {/* Toggles */}
-        <div className="flex flex-row items-center px-4 pt-2 pb-2 gap-3">
-          {/* Global Anchors Toggle */}
-          <button
-            className={`flex items-center px-2 py-1 rounded-full border ${showGlobalAnchors ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
-            onClick={handleGlobalAnchorsToggle}
-          >
-            <span className="mr-2 inline-block w-5 h-5 text-blue-700">🌐</span>
-            <span className="text-sm font-medium text-black">global anchors</span>
-            <span className={`ml-2 w-5 h-5 rounded-full border-2 ${showGlobalAnchors ? 'bg-blue-500 border-blue-500' : 'bg-gray-200 border-gray-400'}`}></span>
-          </button>
-          {/* Transcript Toggle */}
-          <button
-            className={`flex items-center px-2 py-1 rounded-full border ${showTranscript ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
-            onClick={handleTranscriptToggle}
-          >
-            <span className="mr-2 inline-block w-5 h-5 text-blue-700">📝</span>
-            <span className="text-sm font-medium text-black">transcript</span>
-          </button>
-        </div>
-
-        {/* Add Anchor Button (only if not global) */}
-        {!showGlobalAnchors && (
-          <div className="px-4 pb-2">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-center border border-dashed border-blue-400 bg-white text-blue-700 hover:bg-blue-50"
+        <div className="flex flex-row items-center justify-between px-4 pt-2 pb-2">
+          <div className="flex items-center gap-3">
+            {/* Global Anchors Toggle */}
+            <button
+              className={`flex items-center px-2 py-1 rounded-full border ${showGlobalAnchors ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
+              onClick={handleGlobalAnchorsToggle}
+            >
+              <span className="mr-2 inline-block w-5 h-5 text-blue-700">🌐</span>
+              <span className="text-sm font-medium text-black">global anchors</span>
+              <span className={`ml-2 w-5 h-5 rounded-full border-2 ${showGlobalAnchors ? 'bg-blue-500 border-blue-500' : 'bg-gray-200 border-gray-400'}`}></span>
+            </button>
+            {/* Transcript Toggle */}
+            <button
+              className={`flex items-center px-2 py-1 rounded-full border ${showTranscript ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
+              onClick={handleTranscriptToggle}
+            >
+              <span className="mr-2 inline-block w-5 h-5 text-blue-700">📝</span>
+              <span className="text-sm font-medium text-black">transcript</span>
+            </button>
+          </div>
+          {/* Add Anchor Button */}
+          {!showGlobalAnchors && (
+            <button
+              className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-black bg-transparent hover:bg-white/10 transition"
               onClick={handleAddAnchor}
             >
-              <PlusIcon className="w-5 h-5 mr-2" />
-              Add Anchor
-            </Button>
-          </div>
-        )}
+              <PlusIcon className="w-4 h-4 text-black" />
+            </button>
+          )}
+        </div>
 
         {/* Timeline */}
         <div ref={timelineRef} className="flex-1 overflow-y-auto px-6 pb-6 relative">
