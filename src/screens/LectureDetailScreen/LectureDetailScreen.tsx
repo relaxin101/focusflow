@@ -9,6 +9,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { NavigationBar } from "../../components/NavigationBar";
 import ReactMarkdown from 'react-markdown';
 import { useCourse } from "../../context/CourseContext";
+import type { GlobalAnchor } from '../../context/CourseContext';
 
 interface Anchor {
   id: string;
@@ -69,6 +70,7 @@ export const LectureDetailScreen = (): JSX.Element => {
     title: "",
     description: ""
   });
+  const [selectedGlobalAnchor, setSelectedGlobalAnchor] = useState<GlobalAnchor | null>(null);
 
   // Use globalAnchors from the lecture object if present, otherwise fallback to []
   const globalAnchors = lecture?.globalAnchors || [];
@@ -397,7 +399,11 @@ export const LectureDetailScreen = (): JSX.Element => {
                             currentTime >= anchor.timestampSeconds ? 'border-blue-400' : ''
                           }`}
                           onClick={() => {
-                            setSelectedAnchor(anchor);
+                            if (showGlobalAnchors) {
+                              setSelectedGlobalAnchor(anchor as GlobalAnchor);
+                            } else {
+                              setSelectedAnchor(anchor);
+                            }
                           }}
                         >
                           <div className="flex items-center">
@@ -408,6 +414,10 @@ export const LectureDetailScreen = (): JSX.Element => {
                               <span className="text-xs text-blue-600 font-mono whitespace-nowrap ml-2">
                                 {anchor.timestamp}
                               </span>
+                            )}
+                            {/* Show author for global anchors */}
+                            {showGlobalAnchors && (anchor as GlobalAnchor).author && (
+                              <span className="ml-2 text-xs text-gray-500">by {(anchor as GlobalAnchor).author}</span>
                             )}
                           </div>
                         </div>
@@ -587,6 +597,53 @@ export const LectureDetailScreen = (): JSX.Element => {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Global Anchor Modal */}
+      {selectedGlobalAnchor && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-lg w-[90vw] max-w-md p-6 relative flex flex-col">
+            <button
+              className="absolute top-2 right-2 text-2xl text-gray-400 hover:text-black"
+              onClick={() => setSelectedGlobalAnchor(null)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="text-base font-semibold text-blue-600">{selectedGlobalAnchor.timestamp}</span>
+              <span className="text-xs text-gray-500">by {selectedGlobalAnchor.author}</span>
+            </div>
+            <h2 className="text-xl font-bold mb-2 text-black">{selectedGlobalAnchor.title}</h2>
+            <div className="prose prose-sm max-w-none mb-4">
+              <ReactMarkdown>{selectedGlobalAnchor.description}</ReactMarkdown>
+            </div>
+            <div className="flex items-center gap-4 mt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelectedGlobalAnchor({
+                    ...selectedGlobalAnchor,
+                    likes: selectedGlobalAnchor.likes + 1
+                  });
+                }}
+              >
+                👍 {selectedGlobalAnchor.likes}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelectedGlobalAnchor({
+                    ...selectedGlobalAnchor,
+                    dislikes: selectedGlobalAnchor.dislikes + 1
+                  });
+                }}
+              >
+                👎 {selectedGlobalAnchor.dislikes}
+              </Button>
+            </div>
           </div>
         </div>
       )}

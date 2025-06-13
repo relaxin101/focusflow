@@ -1,5 +1,19 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+interface Anchor {
+  id: string;
+  title: string;
+  timestamp: string;
+  timestampSeconds: number;
+  description: string;
+}
+
+export interface GlobalAnchor extends Anchor {
+  author: string;
+  likes: number;
+  dislikes: number;
+}
+
 interface Lecture {
   id: string;
   title: string;
@@ -9,15 +23,7 @@ interface Lecture {
   isLive?: boolean;
   videoId: string;
   anchors: Anchor[];
-  globalAnchors?: Anchor[];
-}
-
-interface Anchor {
-  id: string;
-  title: string;
-  timestamp: string;
-  timestampSeconds: number;
-  description: string;
+  globalAnchors?: GlobalAnchor[];
 }
 
 interface Course {
@@ -46,7 +52,7 @@ const initialCourseData: CourseData = {
   "193.127": {
     title: "Interface and Interaction Design",
     lectures: [
-      { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true, isLive: true, videoId: "dQw4w9WgXcQ", anchors: [] },
+      { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true, isLive: true, videoId: "dQw4w9WgXcQ", anchors: [], globalAnchors: [{id: "1", title: "Color Theory", timestamp: "00:10:00", timestampSeconds: 10, description: "Ein AVL-Baum ist ein balancierter binärer Suchbaum.", author: "Alice", likes: 5, dislikes: 1}]},
       { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false, videoId: "", anchors: [] },
       { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true, videoId: "", anchors: [] },
     ],
