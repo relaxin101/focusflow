@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeftIcon, PlusIcon, StarIcon, HomeIcon, UserIcon, PlayIcon, Trash2Icon, PenIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
@@ -27,8 +27,17 @@ interface NewAnchor {
   description: string;
 }
 
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
+
 export const LectureDetailScreen = (): JSX.Element => {
   const { courseId, lectureId } = useParams<{ courseId: string; lectureId: string }>();
+  const playerRef = useRef<any>(null);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
   
   // Explicitly type lectureData for string indexing
   const lectureData: Record<string, Record<string, {
@@ -114,6 +123,57 @@ export const LectureDetailScreen = (): JSX.Element => {
     description: ""
   });
 
+  // Initialize YouTube Player API
+  useEffect(() => {
+    // Load the YouTube IFrame Player API code asynchronously
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+    // Initialize the player when the API is ready
+    window.onYouTubeIframeAPIReady = () => {
+      playerRef.current = new window.YT.Player('youtube-player', {
+        videoId: lecture?.videoId,
+        height: '200',
+        width: '100%',
+        playerVars: {
+          'playsinline': 1,
+          'controls': 1
+        },
+        events: {
+          'onReady': () => setIsPlayerReady(true),
+        }
+      });
+    };
+
+    return () => {
+      // Cleanup
+      if (playerRef.current) {
+        playerRef.current.destroy();
+      }
+    };
+  }, [lecture?.videoId]);
+
+  // Function to get current video time
+  const getCurrentVideoTime = () => {
+    if (!playerRef.current || !isPlayerReady) return null;
+    const currentTime = playerRef.current.getCurrentTime();
+    return Math.floor(currentTime);
+  };
+
+  // Function to format seconds into hours, minutes, seconds
+  const formatTimeFromSeconds = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return {
+      hours: hours.toString(),
+      minutes: minutes.toString().padStart(2, '0'),
+      seconds: seconds.toString().padStart(2, '0')
+    };
+  };
+
   // Convert time to seconds for sorting
   const timeToSeconds = (hours: number, minutes: number, seconds: number): number => {
     return hours * 3600 + minutes * 60 + seconds;
@@ -129,6 +189,21 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   // Handle adding new anchor
   const handleAddAnchor = () => {
+    const currentTime = getCurrentVideoTime();
+    if (currentTime !== null) {
+      const { hours, minutes, seconds } = formatTimeFromSeconds(currentTime);
+      setNewAnchor(prev => ({
+        ...prev,
+        hours,
+        minutes,
+        seconds
+      }));
+    }
+    setIsAddDialogOpen(true);
+  };
+
+  // Handle saving the new anchor
+  const handleSaveAnchor = () => {
     const hours = parseInt(newAnchor.hours) || 0;
     const minutes = parseInt(newAnchor.minutes) || 0;
     const seconds = parseInt(newAnchor.seconds) || 0;
@@ -201,15 +276,7 @@ export const LectureDetailScreen = (): JSX.Element => {
     <div className="bg-[#8bb3e0] min-h-screen max-w-[393px] mx-auto relative">
       {/* YouTube Video */}
       <div className="w-full h-[200px] bg-black">
-        <iframe
-          width="100%"
-          height="100%"
-          src={`https://www.youtube.com/embed/${lecture.videoId}`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+        <div id="youtube-player"></div>
       </div>
 
       {/* Title */}
@@ -248,7 +315,7 @@ export const LectureDetailScreen = (): JSX.Element => {
             <Button
               variant="ghost"
               className="w-full flex items-center justify-center border border-dashed border-blue-400 bg-white text-blue-700 hover:bg-blue-50"
-              onClick={() => setIsAddDialogOpen(true)}
+              onClick={handleAddAnchor}
             >
               <PlusIcon className="w-5 h-5 mr-2" />
               Add Anchor
@@ -368,7 +435,7 @@ export const LectureDetailScreen = (): JSX.Element => {
                   Cancel
                 </Button>
                 <Button 
-                  onClick={handleAddAnchor}
+                  onClick={handleSaveAnchor}
                   disabled={!newAnchor.title.trim() || !newAnchor.description.trim()}
                 >
                   Add Anchor
