@@ -2,14 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeftIcon, PlusIcon, StarIcon, HomeIcon, UserIcon, PlayIcon, Trash2Icon, PenIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { NavigationBar } from "../../components/NavigationBar";
 import ReactMarkdown from 'react-markdown';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { useCourse } from "../../context/CourseContext";
 
 interface Anchor {
   id: string;
@@ -42,6 +41,7 @@ declare global {
 
 export const LectureDetailScreen = (): JSX.Element => {
   const { courseId, lectureId } = useParams<{ courseId: string; lectureId: string }>();
+  const { courseData } = useCourse();
   const playerRef = useRef<any>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -50,71 +50,7 @@ export const LectureDetailScreen = (): JSX.Element => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [anchorChanges, setAnchorChanges] = useState<AnchorChange[]>([]);
   
-  // Explicitly type lectureData for string indexing
-  const lectureData: Record<string, Record<string, {
-    title: string;
-    date: string;
-    videoId: string;
-    anchors: Anchor[];
-  }>> = {
-    "193.127": {
-      "1": {
-        title: "Color Theory",
-        date: "08.05.2025",
-        videoId: "dQw4w9WgXcQ",
-        anchors: [
-          {
-            id: "1",
-            title: "Iteration Info",
-            timestamp: "00:05:30",
-            timestampSeconds: 330,
-            description: "Iteration is the repetition of a process or set of instructions in computer programming. Each repetition of the process is a single iteration, and the outcome of each iteration is then the starting point of the next iteration."
-          },
-          {
-            id: "2", 
-            title: "Automation",
-            timestamp: "00:12:45",
-            timestampSeconds: 765,
-            description: "Automation refers to the use of technology to perform tasks without human intervention."
-          },
-          {
-            id: "3",
-            title: "Human vs Machine",
-            timestamp: "00:18:20",
-            timestampSeconds: 1100,
-            description: "Comparison between human capabilities and machine efficiency in various tasks."
-          }
-        ]
-      }
-    }
-  };
-
-  // Mock global anchors
-  const globalAnchors: Anchor[] = [
-    {
-      id: "g1",
-      title: "AVL-Baum",
-      timestamp: "00:10:00",
-      timestampSeconds: 600,
-      description: "Ein AVL-Baum ist ein balancierter binärer Suchbaum."
-    },
-    {
-      id: "g2",
-      title: "Arten von Ausnahmen",
-      timestamp: "00:20:00",
-      timestampSeconds: 1200,
-      description: "Unterschiedliche Arten von Ausnahmen in der Programmierung."
-    },
-    {
-      id: "g3",
-      title: "Hash-Tabelle",
-      timestamp: "00:30:00",
-      timestampSeconds: 1800,
-      description: "Eine Hash-Tabelle ist eine Datenstruktur, die Schlüssel-Wert-Paare speichert."
-    }
-  ];
-
-  const lecture = lectureData[courseId as string]?.[lectureId as string];
+  const lecture = courseData[courseId as string]?.lectures.find(l => l.id === lectureId);
   
   const [anchors, setAnchors] = useState<Anchor[]>(lecture?.anchors || []);
   const [selectedAnchor, setSelectedAnchor] = useState<Anchor | null>(null);
@@ -133,6 +69,9 @@ export const LectureDetailScreen = (): JSX.Element => {
     title: "",
     description: ""
   });
+
+  // Use globalAnchors from the lecture object if present, otherwise fallback to []
+  const globalAnchors = lecture?.globalAnchors || [];
 
   // Initialize YouTube Player API
   useEffect(() => {
@@ -414,21 +353,20 @@ export const LectureDetailScreen = (): JSX.Element => {
           <div className="relative z-10" style={{ height: '100%' }}>
             {(() => {
               // Group anchors by their position (with a small threshold for overlap)
-              const groupedAnchors = timelineAnchors.reduce((groups, anchor) => {
+              const groupedAnchors = timelineAnchors.reduce((groups: { position: number; anchors: (Anchor & { position: number })[] }[], anchor: Anchor) => {
                 const position = (anchor.timestampSeconds / duration) * 100;
-                const existingGroup = groups.find(group => 
+                const existingGroup = groups.find((group) =>
                   Math.abs(group.position - position) < 5 // 5% threshold for overlap
                 );
-                
                 if (existingGroup) {
                   existingGroup.anchors.push({ ...anchor, position });
                 } else {
                   groups.push({ position, anchors: [{ ...anchor, position }] });
                 }
                 return groups;
-              }, [] as { position: number; anchors: (Anchor & { position: number })[] }[]);
+              }, []);
 
-              return groupedAnchors.map((group, groupIndex) => (
+              return groupedAnchors.map((group: { position: number; anchors: (Anchor & { position: number })[] }, groupIndex: number) => (
                 <div
                   key={groupIndex}
                   className="absolute left-0 right-0"
@@ -452,7 +390,7 @@ export const LectureDetailScreen = (): JSX.Element => {
                     </div>
                     {/* Anchor cards */}
                     <div className="flex gap-2 overflow-x-auto">
-                      {group.anchors.map((anchor) => (
+                      {group.anchors.map((anchor: Anchor & { position: number }) => (
                         <div
                           key={anchor.id}
                           className={`flex-shrink-0 bg-white rounded-lg px-3 py-1.5 shadow-sm border border-blue-100 hover:bg-blue-50 transition cursor-pointer ${
@@ -541,27 +479,14 @@ export const LectureDetailScreen = (): JSX.Element => {
               </div>
               <div>
                 <Label htmlFor="description">Description</Label>
-                <Tabs defaultValue="edit" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="edit">Edit</TabsTrigger>
-                    <TabsTrigger value="preview">Preview</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="edit">
-                    <Textarea
-                      id="description"
-                      value={newAnchor.description}
-                      onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Write your markdown here..."
-                      rows={4}
-                      className="font-mono"
-                    />
-                  </TabsContent>
-                  <TabsContent value="preview">
-                    <div className="prose prose-sm max-w-none p-4 border rounded-md min-h-[100px]">
-                      <ReactMarkdown>{newAnchor.description}</ReactMarkdown>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                <Textarea
+                  id="description"
+                  value={newAnchor.description}
+                  onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Write your markdown here..."
+                  rows={4}
+                  className="font-mono"
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
@@ -628,26 +553,13 @@ export const LectureDetailScreen = (): JSX.Element => {
                   onChange={(e) => setEditedAnchor(prev => ({ ...prev, title: e.target.value }))}
                   className="mb-2"
                 />
-                <Tabs defaultValue="edit" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="edit">Edit</TabsTrigger>
-                    <TabsTrigger value="preview">Preview</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="edit">
-                    <Textarea
-                      value={editedAnchor.description}
-                      onChange={(e) => setEditedAnchor(prev => ({ ...prev, description: e.target.value }))}
-                      className="mb-4 font-mono"
-                      rows={6}
-                      placeholder="Write your markdown here..."
-                    />
-                  </TabsContent>
-                  <TabsContent value="preview">
-                    <div className="prose prose-sm max-w-none p-4 border rounded-md min-h-[150px]">
-                      <ReactMarkdown>{editedAnchor.description}</ReactMarkdown>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                <Textarea
+                  value={editedAnchor.description}
+                  onChange={(e) => setEditedAnchor(prev => ({ ...prev, description: e.target.value }))}
+                  className="mb-4 font-mono"
+                  rows={6}
+                  placeholder="Write your markdown here..."
+                />
                 <div className="flex justify-end space-x-2 mt-4">
                   <Button variant="outline" onClick={() => setIsEditing(false)}>
                     Cancel

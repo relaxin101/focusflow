@@ -7,6 +7,17 @@ interface Lecture {
   isFavorited: boolean;
   hasNotification?: boolean;
   isLive?: boolean;
+  videoId: string;
+  anchors: Anchor[];
+  globalAnchors?: Anchor[];
+}
+
+interface Anchor {
+  id: string;
+  title: string;
+  timestamp: string;
+  timestampSeconds: number;
+  description: string;
 }
 
 interface Course {
@@ -23,42 +34,48 @@ interface CourseContextType {
   courseData: CourseData;
   toggleLectureFavorite: (courseId: string, lectureId: string) => void;
   toggleCoursePin: (courseId: string) => void;
+  addCourse: (id: string, title: string, isPinned?: boolean) => void;
+  updateCourse: (id: string, title: string, isPinned?: boolean) => void;
+  deleteCourse: (id: string) => void;
+  addLecture: (courseId: string, lecture: Omit<Lecture, 'isFavorited'> & { isFavorited?: boolean }) => void;
+  updateLecture: (courseId: string, lectureId: string, updates: Partial<Lecture>) => void;
+  deleteLecture: (courseId: string, lectureId: string) => void;
 }
 
 const initialCourseData: CourseData = {
   "193.127": {
     title: "Interface and Interaction Design",
     lectures: [
-      { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true, isLive: true },
-      { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false },
-      { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true },
+      { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true, isLive: true, videoId: "dQw4w9WgXcQ", anchors: [] },
+      { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false, videoId: "", anchors: [] },
+      { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true, videoId: "", anchors: [] },
     ],
     isPinned: true
   },
   "185.A92": {
     title: "Introduction to Programming 2",
     lectures: [
-      { id: "1", title: "Object-Oriented Programming", date: "15.05.2025", isFavorited: false, isLive: true },
-      { id: "2", title: "Data Structures", date: "12.05.2025", isFavorited: true },
-      { id: "3", title: "Algorithms", date: "08.05.2025", isFavorited: false },
+      { id: "1", title: "Object-Oriented Programming", date: "15.05.2025", isFavorited: false, isLive: true, videoId: "", anchors: [] },
+      { id: "2", title: "Data Structures", date: "12.05.2025", isFavorited: true, videoId: "", anchors: [] },
+      { id: "3", title: "Algorithms", date: "08.05.2025", isFavorited: false, videoId: "", anchors: [] },
     ],
     isPinned: true
   },
   "186.866": {
     title: "Algorithms and Data Structures",
     lectures: [
-      { id: "1", title: "Sorting Algorithms", date: "20.05.2025", isFavorited: false },
-      { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true, isLive: true },
-      { id: "3", title: "Dynamic Programming", date: "14.05.2025", isFavorited: false },
+      { id: "1", title: "Sorting Algorithms", date: "20.05.2025", isFavorited: false, videoId: "", anchors: [] },
+      { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true, isLive: true, videoId: "", anchors: [] },
+      { id: "3", title: "Dynamic Programming", date: "14.05.2025", isFavorited: false, videoId: "", anchors: [] },
     ],
     isPinned: true
   },
   "104.218": {
     title: "Statistics",
     lectures: [
-      { id: "1", title: "Probability Theory", date: "22.05.2025", isFavorited: false },
-      { id: "2", title: "Statistical Inference", date: "19.05.2025", isFavorited: false },
-      { id: "3", title: "Regression Analysis", date: "16.05.2025", isFavorited: false },
+      { id: "1", title: "Probability Theory", date: "22.05.2025", isFavorited: false, videoId: "", anchors: [] },
+      { id: "2", title: "Statistical Inference", date: "19.05.2025", isFavorited: false, videoId: "", anchors: [] },
+      { id: "3", title: "Regression Analysis", date: "16.05.2025", isFavorited: false, videoId: "", anchors: [] },
     ],
     isPinned: false
   }
@@ -112,8 +129,94 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     });
   };
 
+  const addCourse = (id: string, title: string, isPinned: boolean = false) => {
+    setCourseData(prev => ({
+      ...prev,
+      [id]: { title, lectures: [], isPinned }
+    }));
+  };
+
+  const updateCourse = (id: string, title: string, isPinned?: boolean) => {
+    setCourseData(prev => {
+      if (!prev[id]) return prev;
+      return {
+        ...prev,
+        [id]: {
+          ...prev[id],
+          title: title ?? prev[id].title,
+          isPinned: isPinned !== undefined ? isPinned : prev[id].isPinned
+        }
+      };
+    });
+  };
+
+  const deleteCourse = (id: string) => {
+    setCourseData(prev => {
+      const newData = { ...prev };
+      delete newData[id];
+      return newData;
+    });
+  };
+
+  const addLecture = (courseId: string, lecture: Omit<Lecture, 'isFavorited'> & { isFavorited?: boolean }) => {
+    setCourseData(prev => {
+      const course = prev[courseId];
+      if (!course) return prev;
+      return {
+        ...prev,
+        [courseId]: {
+          ...course,
+          lectures: [
+            ...course.lectures,
+            { ...lecture, isFavorited: lecture.isFavorited ?? false, anchors: lecture.anchors ?? [], videoId: lecture.videoId ?? "" }
+          ]
+        }
+      };
+    });
+  };
+
+  const updateLecture = (courseId: string, lectureId: string, updates: Partial<Lecture>) => {
+    setCourseData(prev => {
+      const course = prev[courseId];
+      if (!course) return prev;
+      return {
+        ...prev,
+        [courseId]: {
+          ...course,
+          lectures: course.lectures.map(l =>
+            l.id === lectureId ? { ...l, ...updates } : l
+          )
+        }
+      };
+    });
+  };
+
+  const deleteLecture = (courseId: string, lectureId: string) => {
+    setCourseData(prev => {
+      const course = prev[courseId];
+      if (!course) return prev;
+      return {
+        ...prev,
+        [courseId]: {
+          ...course,
+          lectures: course.lectures.filter(l => l.id !== lectureId)
+        }
+      };
+    });
+  };
+
   return (
-    <CourseContext.Provider value={{ courseData, toggleLectureFavorite, toggleCoursePin }}>
+    <CourseContext.Provider value={{
+      courseData,
+      toggleLectureFavorite,
+      toggleCoursePin,
+      addCourse,
+      updateCourse,
+      deleteCourse,
+      addLecture,
+      updateLecture,
+      deleteLecture
+    }}>
       {children}
     </CourseContext.Provider>
   );

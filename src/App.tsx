@@ -6,6 +6,7 @@ import { LectureDetailScreen } from "./screens/LectureDetailScreen/LectureDetail
 import { FavoritesScreen } from "./screens/FavoritesScreen/FavoritesScreen";
 import { ProfileScreen } from "./screens/ProfileScreen/ProfileScreen";
 import { CourseProvider } from "./context/CourseContext";
+import { AdminScreen } from "./screens/AdminScreen/AdminScreen";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: "/course/:courseId/lecture/:lectureId",
     element: <LectureDetailScreen />,
+  },
+  {
+    path: "/admin",
+    element: <AdminScreen />,
   },
 ]);
 

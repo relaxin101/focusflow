@@ -102,6 +102,15 @@ export const ProfileScreen = (): JSX.Element => {
       </main>
 
       <NavigationBar />
+
+      {/* Admin Mode Link */}
+      <div className="absolute bottom-20 left-0 w-full flex justify-center">
+        <Link to="/admin">
+          <Button variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
+            Admin Mode
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };
