@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeftIcon, FilterIcon, StarIcon, HomeIcon, UserIcon, PlayIcon } from "lucide-react";
+import { ArrowLeftIcon, FilterIcon, StarIcon, HomeIcon, UserIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
 import { SearchBar } from "../../components/SearchBar/SearchBar";
+import { LectureCard } from "../../components/LectureCard/LectureCard";
+import { useCourse } from "../../context/CourseContext";
 
 interface Lecture {
   id: string;
@@ -16,35 +17,8 @@ interface Lecture {
 export const LectureOverviewScreen = (): JSX.Element => {
   const { courseId } = useParams<{ courseId: string }>();
   const [searchQuery, setSearchQuery] = useState("");
+  const { courseData, toggleLectureFavorite } = useCourse();
   
-  // Mock course data
-  const courseData = {
-    "193.127": {
-      title: "Interface and Interaction Design",
-      lectures: [
-        { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true },
-        { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false },
-        { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true },
-      ]
-    },
-    "185.A92": {
-      title: "Introduction to Programming 2",
-      lectures: [
-        { id: "1", title: "Object-Oriented Programming", date: "15.05.2025", isFavorited: false },
-        { id: "2", title: "Data Structures", date: "12.05.2025", isFavorited: true },
-        { id: "3", title: "Algorithms", date: "08.05.2025", isFavorited: false },
-      ]
-    },
-    "186.866": {
-      title: "Algorithms and Data Structures",
-      lectures: [
-        { id: "1", title: "Sorting Algorithms", date: "20.05.2025", isFavorited: false },
-        { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true },
-        { id: "3", title: "Dynamic Programming", date: "14.05.2025", isFavorited: false },
-      ]
-    }
-  };
-
   const course = courseData[courseId as keyof typeof courseData];
   const [lectures, setLectures] = useState<Lecture[]>(course?.lectures || []);
 
@@ -56,15 +30,18 @@ export const LectureOverviewScreen = (): JSX.Element => {
     );
   }, [lectures, searchQuery]);
 
-  // Toggle lecture favorite status
-  const toggleLectureFavorite = (lectureId: string) => {
-    setLectures(prevLectures =>
-      prevLectures.map(lecture =>
-        lecture.id === lectureId
-          ? { ...lecture, isFavorited: !lecture.isFavorited }
-          : lecture
-      )
-    );
+  // Handle lecture favorite toggle
+  const handleToggleFavorite = (lectureId: string) => {
+    if (courseId) {
+      toggleLectureFavorite(courseId, lectureId);
+      setLectures(prevLectures =>
+        prevLectures.map(lecture =>
+          lecture.id === lectureId
+            ? { ...lecture, isFavorited: !lecture.isFavorited }
+            : lecture
+        )
+      );
+    }
   };
 
   if (!course) {
@@ -116,47 +93,16 @@ export const LectureOverviewScreen = (): JSX.Element => {
       <main className="w-full h-[calc(100vh-170px)] mt-[170px] overflow-y-auto px-4">
         <div className="space-y-4">
           {filteredLectures.map((lecture) => (
-            <Card key={lecture.id} className="border border-gray-200 shadow-sm">
-              <CardContent className="p-0">
-                {/* Video thumbnail area - now clickable */}
-                <Link to={`/course/${courseId}/lecture/${lecture.id}`}>
-                  <div className="relative w-full h-[120px] bg-celestial-blue flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity">
-                    <PlayIcon className="w-12 h-12 text-white" />
-                    
-                    {/* Notification indicator */}
-                    {lecture.hasNotification && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-black">1</span>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-                
-                {/* Lecture info */}
-                <div className="p-3 flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-black">
-                      IID: {lecture.title} / {lecture.date}
-                    </p>
-                  </div>
-                  
-                  {/* Star toggle button */}
-                  <Button
-                    variant="ghost"
-                    className="p-0 h-auto w-auto hover:bg-transparent ml-2"
-                    onClick={() => toggleLectureFavorite(lecture.id)}
-                  >
-                    <StarIcon 
-                      className={`w-6 h-6 ${
-                        lecture.isFavorited 
-                          ? 'text-yellow-500 fill-yellow-500' 
-                          : 'text-gray-400'
-                      }`}
-                    />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <LectureCard
+              key={lecture.id}
+              id={lecture.id}
+              courseId={courseId || ""}
+              title={lecture.title}
+              date={lecture.date}
+              isFavorited={lecture.isFavorited}
+              hasNotification={lecture.hasNotification}
+              onToggleFavorite={handleToggleFavorite}
+            />
           ))}
         </div>
       </main>

@@ -1,10 +1,11 @@
 import React from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { CourseMainScreen } from "./screens/CourseMainScreen";
-import { FavoritesScreen } from "./screens/FavoritesScreen";
-import { ProfileScreen } from "./screens/ProfileScreen";
-import { LectureOverviewScreen } from "./screens/LectureOverviewScreen";
-import { LectureDetailScreen } from "./screens/LectureDetailScreen";
+import { CourseMainScreen } from "./screens/CourseMainScreen/CourseMainScreen";
+import { LectureOverviewScreen } from "./screens/LectureOverviewScreen/LectureOverviewScreen";
+import { LectureDetailScreen } from "./screens/LectureDetailScreen/LectureDetailScreen";
+import { FavoritesScreen } from "./screens/FavoritesScreen/FavoritesScreen";
+import { ProfileScreen } from "./screens/ProfileScreen/ProfileScreen";
+import { CourseProvider } from "./context/CourseContext";
 
 const router = createBrowserRouter([
   {
@@ -30,5 +31,9 @@ const router = createBrowserRouter([
 ]);
 
 export const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <CourseProvider>
+      <RouterProvider router={router} />
+    </CourseProvider>
+  );
 };
