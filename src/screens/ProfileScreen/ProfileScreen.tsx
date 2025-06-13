@@ -4,6 +4,8 @@ import { ArrowLeftIcon, UserIcon, MailIcon, PhoneIcon, MapPinIcon } from "lucide
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Separator } from "../../components/ui/separator";
+import { StarIcon, HomeIcon } from "lucide-react";
+import { NavigationBar } from "../../components/NavigationBar";
 
 export const ProfileScreen = (): JSX.Element => {
   // Mock user data
@@ -19,18 +21,15 @@ export const ProfileScreen = (): JSX.Element => {
 
   return (
     <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
-      {/* Header */}
-      <header className="fixed w-full max-w-[393px] h-[60px] top-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] flex items-center px-4">
-        <Link to="/" className="mr-4">
-          <ArrowLeftIcon className="w-6 h-6 text-black" />
-        </Link>
-        <h1 className="text-xl font-semibold text-black">Profile</h1>
-      </header>
-
-      {/* Profile content */}
-      <main className="w-full h-[calc(100vh-120px)] mt-[60px] overflow-y-auto p-4">
+      {/* Main content */}
+      <main className="w-full h-[calc(100vh-60px)] overflow-y-auto p-4">
         <div className="space-y-6">
-          {/* Profile picture and basic info */}
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold text-black mb-2">Profile</h1>
+            <p className="text-gray-500">Manage your account settings</p>
+          </div>
+
+          {/* Profile content */}
           <Card className="border border-gray-200 shadow-sm">
             <CardContent className="p-6 text-center">
               <div className="w-24 h-24 bg-celestial-blue rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -102,31 +101,7 @@ export const ProfileScreen = (): JSX.Element => {
         </div>
       </main>
 
-      {/* Navigation bar */}
-      <nav className="fixed w-full max-w-[393px] h-[60px] bottom-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] border-2 border-solid border-[#000000cc] flex justify-around items-center">
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/favorites"
-        >
-          <svg className="w-[31px] h-[31px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-          </svg>
-        </Link>
-
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/"
-        >
-          <svg className="w-[30px] h-[30px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9,22 9,12 15,12 15,22"/>
-          </svg>
-        </Link>
-
-        <Button className="w-20 h-10 bg-fern-green rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center p-0">
-          <UserIcon className="w-[30px] h-[30px]" />
-        </Button>
-      </nav>
+      <NavigationBar />
     </div>
   );
 };

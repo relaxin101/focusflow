@@ -7,6 +7,7 @@ import { Input } from "../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
+import { NavigationBar } from "../../components/NavigationBar";
 
 interface Anchor {
   id: string;
@@ -168,25 +169,6 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   return (
     <div className="bg-[#8bb3e0] min-h-screen max-w-[393px] mx-auto relative">
-      {/* Header */}
-      <header className="fixed w-full max-w-[393px] h-[50px] top-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] z-10">
-        <div className="flex items-center justify-between px-4 h-full">
-          <div className="flex items-center">
-            <Link to={`/course/${courseId}`} className="mr-3">
-              <ArrowLeftIcon className="w-5 h-5 text-black" />
-            </Link>
-            <h1 className="text-sm font-medium text-black">
-              {lecture.title} / {lecture.date}
-            </h1>
-          </div>
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-[#dbeafe] rounded-xl flex items-center justify-center border-2 border-white">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#222" strokeWidth="1.5"/><rect x="7" y="9" width="2" height="6" rx="1" fill="#222"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#222"/><rect x="15" y="9" width="2" height="6" rx="1" fill="#222"/></svg>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* YouTube Video */}
       <div className="w-full h-[200px] bg-black">
         <iframe
@@ -200,10 +182,17 @@ export const LectureDetailScreen = (): JSX.Element => {
         />
       </div>
 
+      {/* Title */}
+      <div className="px-4 pt-4 pb-2">
+        <h1 className="text-lg font-medium text-black">
+          {lecture.title} / {lecture.date}
+        </h1>
+      </div>
+
       {/* Timeline & Controls */}
-      <div className="w-full h-[calc(100vh-250px)] flex flex-col bg-[#8bb3e0]">
+      <div className="w-full h-[calc(100vh-300px)] flex flex-col bg-[#8bb3e0]">
         {/* Toggles */}
-        <div className="flex flex-row items-center px-4 pt-4 pb-2 gap-3">
+        <div className="flex flex-row items-center px-4 pt-2 pb-2 gap-3">
           {/* Global Anchors Toggle */}
           <button
             className={`flex items-center px-2 py-1 rounded-full border ${showGlobalAnchors ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
@@ -368,29 +357,7 @@ export const LectureDetailScreen = (): JSX.Element => {
         </div>
       )}
 
-      {/* Navigation bar */}
-      <nav className="fixed w-full max-w-[393px] h-[60px] bottom-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] border-2 border-solid border-[#000000cc] flex justify-around items-center z-20">
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/favorites"
-        >
-          <StarIcon className="w-[31px] h-[31px]" />
-        </Link>
-
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/"
-        >
-          <HomeIcon className="w-[30px] h-[30px]" />
-        </Link>
-
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/profile"
-        >
-          <UserIcon className="w-[30px] h-[30px]" />
-        </Link>
-      </nav>
+      <NavigationBar />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { StarIcon, HomeIcon, UserIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { SearchBar } from "../../components/SearchBar/SearchBar";
 import { LectureCard } from "../../components/LectureCard/LectureCard";
+import { NavigationBar } from "../../components/NavigationBar";
 import { useCourse } from "../../context/CourseContext";
 
 interface Lecture {
@@ -94,26 +95,7 @@ export const FavoritesScreen = (): JSX.Element => {
         )}
       </main>
 
-      {/* Navigation bar */}
-      <nav className="fixed w-full max-w-[393px] h-[60px] bottom-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] border-2 border-solid border-[#000000cc] flex justify-around items-center">
-        <Button className="w-20 h-10 bg-fern-green rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center p-0">
-          <StarIcon className="w-[31px] h-[31px]" />
-        </Button>
-
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/"
-        >
-          <HomeIcon className="w-[30px] h-[30px]" />
-        </Link>
-
-        <Link
-          className="w-20 h-10 bg-white rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center"
-          to="/profile"
-        >
-          <UserIcon className="w-[30px] h-[30px]" />
-        </Link>
-      </nav>
+      <NavigationBar />
     </div>
   );
 };
