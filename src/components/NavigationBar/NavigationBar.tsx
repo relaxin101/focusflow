@@ -10,7 +10,7 @@ export const NavigationBar = (): JSX.Element => {
   const isProfile = location.pathname === "/profile";
 
   return (
-    <nav className="fixed w-full max-w-[393px] h-[60px] bottom-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] border-2 border-solid border-[#000000cc] flex justify-around items-center z-20">
+    <nav className="fixed w-full h-[60px] bottom-0 left-0 bg-[#5586c94c] flex justify-around items-center z-20">
       <Link
         className={`w-20 h-10 rounded-[20px] border-2 border-solid border-[#000000cc] flex items-center justify-center ${
           isFavorites ? "bg-fern-green" : "bg-white"

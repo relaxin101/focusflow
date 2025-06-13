@@ -66,7 +66,7 @@ export const FavoritesScreen = (): JSX.Element => {
   };
 
   return (
-    <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
+    <div className="bg-white min-h-screen w-full relative">
       {/* Main content */}
       <main className="w-full h-[calc(100vh-60px)] overflow-y-auto p-4">
         {/* Search */}

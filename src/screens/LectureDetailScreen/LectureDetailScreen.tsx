@@ -280,7 +280,7 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   if (!lecture) {
     return (
-      <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
+      <div className="bg-white min-h-screen w-full relative">
         <div className="flex items-center justify-center h-screen">
           <p>Lecture not found</p>
         </div>
@@ -292,7 +292,7 @@ export const LectureDetailScreen = (): JSX.Element => {
   const timelineAnchors = showGlobalAnchors ? globalAnchors : anchors;
 
   return (
-    <div className="bg-[#8bb3e0] min-h-screen max-w-[393px] mx-auto relative">
+    <div className="bg-[#8bb3e0] min-h-screen w-full relative">
       {/* YouTube Video */}
       <div className="w-full h-[200px] bg-black">
         <div id="youtube-player"></div>
@@ -306,7 +306,7 @@ export const LectureDetailScreen = (): JSX.Element => {
       </div>
 
       {/* Timeline & Controls */}
-      <div className="w-full h-[calc(100vh-300px)] flex flex-col bg-[#8bb3e0]">
+      <div className="w-full h-[calc(100vh-350px)] flex flex-col bg-[#8bb3e0]">
         {/* Toggles */}
         <div className="flex flex-row items-center justify-between px-4 pt-2 pb-2">
           <div className="flex items-center gap-3">
