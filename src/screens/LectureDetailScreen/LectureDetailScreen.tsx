@@ -19,6 +19,12 @@ interface Anchor {
   timestampSeconds: number;
 }
 
+interface AnchorChange {
+  type: 'added' | 'updated' | 'deleted';
+  anchor: Anchor;
+  timestamp: number;
+}
+
 interface NewAnchor {
   title: string;
   hours: string;
@@ -42,6 +48,7 @@ export const LectureDetailScreen = (): JSX.Element => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [anchorChanges, setAnchorChanges] = useState<AnchorChange[]>([]);
   
   // Explicitly type lectureData for string indexing
   const lectureData: Record<string, Record<string, {
@@ -224,6 +231,10 @@ export const LectureDetailScreen = (): JSX.Element => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
+    
+    if (duration < 3600) {
+      return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
@@ -261,6 +272,13 @@ export const LectureDetailScreen = (): JSX.Element => {
     const updatedAnchors = [...anchors, anchor].sort((a, b) => a.timestampSeconds - b.timestampSeconds);
     setAnchors(updatedAnchors);
     
+    // Record the change
+    setAnchorChanges(prev => [...prev, {
+      type: 'added',
+      anchor,
+      timestamp: Date.now()
+    }]);
+    
     // Reset form
     setNewAnchor({
       title: "",
@@ -279,13 +297,25 @@ export const LectureDetailScreen = (): JSX.Element => {
   // Add this new function to handle editing
   const handleEditAnchor = () => {
     if (selectedAnchor) {
+      const updatedAnchor = {
+        ...selectedAnchor,
+        title: editedAnchor.title,
+        description: editedAnchor.description
+      };
+
       setAnchors(prevAnchors =>
         prevAnchors.map(anchor =>
-          anchor.id === selectedAnchor.id
-            ? { ...anchor, title: editedAnchor.title, description: editedAnchor.description }
-            : anchor
+          anchor.id === selectedAnchor.id ? updatedAnchor : anchor
         )
       );
+
+      // Record the change
+      setAnchorChanges(prev => [...prev, {
+        type: 'updated',
+        anchor: updatedAnchor,
+        timestamp: Date.now()
+      }]);
+
       setIsEditing(false);
       setSelectedAnchor(null);
     }
@@ -295,6 +325,14 @@ export const LectureDetailScreen = (): JSX.Element => {
   const handleDeleteAnchor = () => {
     if (selectedAnchor) {
       setAnchors(prevAnchors => prevAnchors.filter(anchor => anchor.id !== selectedAnchor.id));
+      
+      // Record the change
+      setAnchorChanges(prev => [...prev, {
+        type: 'deleted',
+        anchor: selectedAnchor,
+        timestamp: Date.now()
+      }]);
+
       setSelectedAnchor(null);
     }
   };
@@ -376,45 +414,74 @@ export const LectureDetailScreen = (): JSX.Element => {
             />
           </div>
 
-          <div className="flex flex-col gap-8 relative z-10">
-            {timelineAnchors.map((anchor, idx) => (
-              <div 
-                key={anchor.id} 
-                id={`anchor-${anchor.id}`}
-                className={`flex items-center gap-4 cursor-pointer group ${
-                  currentTime >= anchor.timestampSeconds ? 'opacity-100' : 'opacity-50'
-                }`} 
-                onClick={() => {
-                  if (playerRef.current) {
-                    playerRef.current.seekTo(anchor.timestampSeconds);
-                  }
-                  setSelectedAnchor(anchor);
-                }}
-              >
-                {/* Timeline node */}
-                <div className="flex flex-col items-center">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-4 ${
-                    showGlobalAnchors ? 'border-blue-700 bg-white' : 'border-blue-400 bg-white'
-                  } group-hover:bg-blue-100 transition ${
-                    currentTime >= anchor.timestampSeconds ? 'border-blue-600' : ''
-                  }`}>
-                    <span className="text-xs font-bold text-blue-700">{anchor.title[0]}</span>
+          <div className="relative z-10" style={{ height: '100%' }}>
+            {(() => {
+              // Group anchors by their position (with a small threshold for overlap)
+              const groupedAnchors = timelineAnchors.reduce((groups, anchor) => {
+                const position = (anchor.timestampSeconds / duration) * 100;
+                const existingGroup = groups.find(group => 
+                  Math.abs(group.position - position) < 5 // 5% threshold for overlap
+                );
+                
+                if (existingGroup) {
+                  existingGroup.anchors.push({ ...anchor, position });
+                } else {
+                  groups.push({ position, anchors: [{ ...anchor, position }] });
+                }
+                return groups;
+              }, [] as { position: number; anchors: (Anchor & { position: number })[] }[]);
+
+              return groupedAnchors.map((group, groupIndex) => (
+                <div
+                  key={groupIndex}
+                  className="absolute left-0 right-0"
+                  style={{
+                    top: `${group.position}%`,
+                    transform: 'translateY(-50%)'
+                  }}
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Timeline node */}
+                    <div className="flex flex-col items-center">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                        showGlobalAnchors ? 'border-blue-700 bg-white' : 'border-blue-400 bg-white'
+                      } group-hover:bg-blue-100 transition ${
+                        currentTime >= group.anchors[0].timestampSeconds ? 'border-blue-600' : ''
+                      }`}>
+                        <span className="text-[10px] font-bold text-blue-700">
+                          {group.anchors.length > 1 ? group.anchors.length : group.anchors[0].title[0]}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Anchor cards */}
+                    <div className="flex gap-2 overflow-x-auto">
+                      {group.anchors.map((anchor) => (
+                        <div
+                          key={anchor.id}
+                          className={`flex-shrink-0 bg-white rounded-lg px-3 py-1.5 shadow-sm border border-blue-100 hover:bg-blue-50 transition cursor-pointer ${
+                            currentTime >= anchor.timestampSeconds ? 'border-blue-400' : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedAnchor(anchor);
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <span className="font-medium text-sm text-blue-900 truncate max-w-[150px]">
+                              {anchor.title}
+                            </span>
+                            {group.anchors.length === 1 && (
+                              <span className="text-xs text-blue-600 font-mono whitespace-nowrap ml-2">
+                                {anchor.timestamp}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  {idx !== timelineAnchors.length - 1 && (
-                    <div className="w-1 flex-1 bg-blue-300" style={{minHeight: '24px'}}></div>
-                  )}
                 </div>
-                {/* Anchor info */}
-                <div className={`flex-1 bg-white rounded-lg px-4 py-2 shadow-sm border border-blue-100 group-hover:bg-blue-50 transition ${
-                  currentTime >= anchor.timestampSeconds ? 'border-blue-400' : ''
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm text-blue-900">{anchor.title}</span>
-                    <span className="text-xs text-blue-600 font-mono">{anchor.timestamp}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         </div>
       </div>
@@ -439,16 +506,18 @@ export const LectureDetailScreen = (): JSX.Element => {
               <div>
                 <Label>Timestamp</Label>
                 <div className="flex space-x-2">
-                  <div className="flex-1">
-                    <Label htmlFor="hours" className="text-xs">Hours</Label>
-                    <Input
-                      id="hours"
-                      type="number"
-                      min="0"
-                      value={newAnchor.hours}
-                      onChange={(e) => setNewAnchor(prev => ({ ...prev, hours: e.target.value }))}
-                    />
-                  </div>
+                  {duration >= 3600 && (
+                    <div className="flex-1">
+                      <Label htmlFor="hours" className="text-xs">Hours</Label>
+                      <Input
+                        id="hours"
+                        type="number"
+                        min="0"
+                        value={newAnchor.hours}
+                        onChange={(e) => setNewAnchor(prev => ({ ...prev, hours: e.target.value }))}
+                      />
+                    </div>
+                  )}
                   <div className="flex-1">
                     <Label htmlFor="minutes" className="text-xs">Minutes</Label>
                     <Input
@@ -528,7 +597,17 @@ export const LectureDetailScreen = (): JSX.Element => {
               ×
             </button>
             <div className="flex items-center space-x-2 mb-4">
-              <PlayIcon className="w-5 h-5 text-blue-600" />
+              <button
+                onClick={() => {
+                  if (playerRef.current) {
+                    playerRef.current.seekTo(selectedAnchor.timestampSeconds);
+                    playerRef.current.playVideo();
+                  }
+                }}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <PlayIcon className="w-5 h-5 text-blue-600" />
+              </button>
               <span className="text-base font-semibold text-blue-600">{selectedAnchor.timestamp}</span>
               {!isEditing && (
                 <button
