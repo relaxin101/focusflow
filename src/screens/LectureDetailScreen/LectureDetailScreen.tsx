@@ -71,6 +71,7 @@ export const LectureDetailScreen = (): JSX.Element => {
     description: ""
   });
   const [selectedGlobalAnchor, setSelectedGlobalAnchor] = useState<GlobalAnchor | null>(null);
+  const [publishAsGlobal, setPublishAsGlobal] = useState(false);
 
   // Use globalAnchors from the lecture object if present, otherwise fallback to []
   const globalAnchors = lecture?.globalAnchors || [];
@@ -219,6 +220,24 @@ export const LectureDetailScreen = (): JSX.Element => {
       anchor,
       timestamp: Date.now()
     }]);
+
+    // If publishing as global anchor
+    if (publishAsGlobal && lecture) {
+      const author = "Admin"; // You can replace this with actual user info if available
+      const newGlobalAnchor: GlobalAnchor = {
+        id: Date.now().toString(),
+        title: newAnchor.title,
+        timestamp: formatTimestamp(timestampSeconds),
+        timestampSeconds,
+        description: newAnchor.description,
+        author,
+        likes: 0,
+        dislikes: 0
+      };
+      // Add to globalAnchors in lecture
+      if (!lecture.globalAnchors) lecture.globalAnchors = [];
+      lecture.globalAnchors = [...lecture.globalAnchors, newGlobalAnchor];
+    }
     
     // Reset form
     setNewAnchor({
@@ -228,6 +247,7 @@ export const LectureDetailScreen = (): JSX.Element => {
       seconds: "0", 
       description: ""
     });
+    setPublishAsGlobal(false);
     setIsAddDialogOpen(false);
   };
 
@@ -293,9 +313,23 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   return (
     <div className="bg-[#8bb3e0] min-h-screen w-full relative">
-      {/* YouTube Video */}
-      <div className="w-full h-[200px] bg-black">
-        <div id="youtube-player"></div>
+      {/* YouTube Video or Transcript */}
+      <div className="w-full h-[33vh] bg-black relative">
+        <div id="youtube-player" className="w-full h-full"></div>
+        {showTranscript && (
+          <div className="absolute inset-0 w-full h-full overflow-y-auto p-4 text-white bg-black/90">
+            <h2 className="text-xl font-bold mb-4">Transcript</h2>
+            <p className="text-sm leading-relaxed">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            </p>
+            <p className="text-sm leading-relaxed mt-4">
+              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+            <p className="text-sm leading-relaxed mt-4">
+              Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Title */}
@@ -306,7 +340,7 @@ export const LectureDetailScreen = (): JSX.Element => {
       </div>
 
       {/* Timeline & Controls */}
-      <div className="w-full h-[calc(100vh-350px)] flex flex-col bg-[#8bb3e0]">
+      <div className="w-full h-[calc(100vh-33vh-150px)] flex flex-col bg-[#8bb3e0]">
         {/* Toggles */}
         <div className="flex flex-row items-center justify-between px-4 pt-2 pb-2">
           <div className="flex items-center gap-3">
@@ -434,74 +468,86 @@ export const LectureDetailScreen = (): JSX.Element => {
       {/* Add Anchor Dialog */}
       {!showGlobalAnchors && (
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="w-[350px]">
+          <DialogContent className="max-w-[800px] w-full max-h-[800px] mx-auto bg-blue-900 text-white rounded-xl p-4">
             <DialogHeader>
               <DialogTitle>Add New Anchor</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">Title</Label>
+                <Label className="text-white">Timestamp</Label>
+                <div className="flex items-center bg-blue-900 rounded-md p-2 justify-start space-x-1">
+                  {duration >= 3600 && (
+                    <div className="flex items-center">
+                      <Input
+                        id="hours"
+                        type="number"
+                        min="0"
+                        max={Math.floor(duration / 3600)}
+                        value={newAnchor.hours}
+                        onChange={(e) => setNewAnchor(prev => ({ ...prev, hours: e.target.value }))}
+                        className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0"
+                      />
+                      <Label htmlFor="hours" className="text-xs text-white ml-1 mr-2">h</Label>
+                    </div>
+                  )}
+                  <div className="flex items-center">
+                    <Input
+                      id="minutes"
+                      type="number"
+                      min="0"
+                      max={duration >= 3600 ? 59 : Math.floor((duration % 3600) / 60)}
+                      value={newAnchor.minutes}
+                      onChange={(e) => setNewAnchor(prev => ({ ...prev, minutes: e.target.value }))}
+                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0"
+                    />
+                    <Label htmlFor="minutes" className="text-xs text-white ml-1 mr-2">min</Label>
+                  </div>
+                  <div className="flex items-center">
+                    <Input
+                      id="seconds"
+                      type="number"
+                      min="0"
+                      max={59}
+                      value={newAnchor.seconds}
+                      onChange={(e) => setNewAnchor(prev => ({ ...prev, seconds: e.target.value }))}
+                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0"
+                    />
+                    <Label htmlFor="seconds" className="text-xs text-white ml-1 mr-2">s</Label>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="title" className="text-white">Title</Label>
                 <Input
                   id="title"
                   value={newAnchor.title}
                   onChange={(e) => setNewAnchor(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter anchor title"
+                  className="bg-blue-900 text-white placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <Label>Timestamp</Label>
-                <div className="flex space-x-2">
-                  {duration >= 3600 && (
-                    <div className="flex-1">
-                      <Label htmlFor="hours" className="text-xs">Hours</Label>
-                      <Input
-                        id="hours"
-                        type="number"
-                        min="0"
-                        value={newAnchor.hours}
-                        onChange={(e) => setNewAnchor(prev => ({ ...prev, hours: e.target.value }))}
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <Label htmlFor="minutes" className="text-xs">Minutes</Label>
-                    <Input
-                      id="minutes"
-                      type="number"
-                      min="0"
-                      max="59"
-                      value={newAnchor.minutes}
-                      onChange={(e) => setNewAnchor(prev => ({ ...prev, minutes: e.target.value }))}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Label htmlFor="seconds" className="text-xs">Seconds</Label>
-                    <Input
-                      id="seconds"
-                      type="number"
-                      min="0"
-                      max="59"
-                      value={newAnchor.seconds}
-                      onChange={(e) => setNewAnchor(prev => ({ ...prev, seconds: e.target.value }))}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-white">Description</Label>
                 <Textarea
                   id="description"
                   value={newAnchor.description}
                   onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Write your markdown here..."
                   rows={4}
-                  className="font-mono"
+                  className="font-mono bg-blue-900 text-white placeholder:text-gray-400"
                 />
               </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="publishAsGlobal"
+                  checked={publishAsGlobal}
+                  onChange={e => setPublishAsGlobal(e.target.checked)}
+                  className="accent-blue-500"
+                />
+                <Label htmlFor="publishAsGlobal" className="text-white">Publish as global anchor</Label>
+              </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
-                </Button>
                 <Button 
                   onClick={handleSaveAnchor}
                   disabled={!newAnchor.title.trim() || !newAnchor.description.trim()}
