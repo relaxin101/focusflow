@@ -11,6 +11,7 @@ interface Lecture {
 interface Course {
   title: string;
   lectures: Lecture[];
+  isPinned: boolean;
 }
 
 interface CourseData {
@@ -20,6 +21,7 @@ interface CourseData {
 interface CourseContextType {
   courseData: CourseData;
   toggleLectureFavorite: (courseId: string, lectureId: string) => void;
+  toggleCoursePin: (courseId: string) => void;
 }
 
 const initialCourseData: CourseData = {
@@ -29,7 +31,8 @@ const initialCourseData: CourseData = {
       { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true },
       { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false },
       { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true },
-    ]
+    ],
+    isPinned: true
   },
   "185.A92": {
     title: "Introduction to Programming 2",
@@ -37,7 +40,8 @@ const initialCourseData: CourseData = {
       { id: "1", title: "Object-Oriented Programming", date: "15.05.2025", isFavorited: false },
       { id: "2", title: "Data Structures", date: "12.05.2025", isFavorited: true },
       { id: "3", title: "Algorithms", date: "08.05.2025", isFavorited: false },
-    ]
+    ],
+    isPinned: true
   },
   "186.866": {
     title: "Algorithms and Data Structures",
@@ -45,7 +49,8 @@ const initialCourseData: CourseData = {
       { id: "1", title: "Sorting Algorithms", date: "20.05.2025", isFavorited: false },
       { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true },
       { id: "3", title: "Dynamic Programming", date: "14.05.2025", isFavorited: false },
-    ]
+    ],
+    isPinned: true
   }
 };
 
@@ -59,24 +64,46 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const course = prevData[courseId];
       if (!course) return prevData;
 
-      const updatedLectures = course.lectures.map(lecture =>
-        lecture.id === lectureId
-          ? { ...lecture, isFavorited: !lecture.isFavorited }
-          : lecture
-      );
+      const updatedLectures = course.lectures.map(lecture => {
+        if (lecture.id === lectureId) {
+          return { ...lecture, isFavorited: !lecture.isFavorited };
+        }
+        return lecture;
+      });
 
-      return {
+      const newData = {
         ...prevData,
         [courseId]: {
           ...course,
           lectures: updatedLectures
         }
       };
+
+      console.log('Toggling favorite:', { courseId, lectureId, newData });
+      return newData;
+    });
+  };
+
+  const toggleCoursePin = (courseId: string) => {
+    setCourseData(prevData => {
+      const course = prevData[courseId];
+      if (!course) return prevData;
+
+      const newData = {
+        ...prevData,
+        [courseId]: {
+          ...course,
+          isPinned: !course.isPinned
+        }
+      };
+
+      console.log('Toggling course pin:', { courseId, newData });
+      return newData;
     });
   };
 
   return (
-    <CourseContext.Provider value={{ courseData, toggleLectureFavorite }}>
+    <CourseContext.Provider value={{ courseData, toggleLectureFavorite, toggleCoursePin }}>
       {children}
     </CourseContext.Provider>
   );

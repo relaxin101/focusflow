@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { NavigationBar } from "../../components/NavigationBar";
+import ReactMarkdown from 'react-markdown';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 interface Anchor {
   id: string;
@@ -339,13 +341,27 @@ export const LectureDetailScreen = (): JSX.Element => {
               </div>
               <div>
                 <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={newAnchor.description}
-                  onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter anchor description"
-                  rows={3}
-                />
+                <Tabs defaultValue="edit" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="edit">Edit</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="edit">
+                    <Textarea
+                      id="description"
+                      value={newAnchor.description}
+                      onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Write your markdown here..."
+                      rows={4}
+                      className="font-mono"
+                    />
+                  </TabsContent>
+                  <TabsContent value="preview">
+                    <div className="prose prose-sm max-w-none p-4 border rounded-md min-h-[100px]">
+                      <ReactMarkdown>{newAnchor.description}</ReactMarkdown>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
@@ -402,13 +418,27 @@ export const LectureDetailScreen = (): JSX.Element => {
                   onChange={(e) => setEditedAnchor(prev => ({ ...prev, title: e.target.value }))}
                   className="mb-2"
                 />
-                <Textarea
-                  value={editedAnchor.description}
-                  onChange={(e) => setEditedAnchor(prev => ({ ...prev, description: e.target.value }))}
-                  className="mb-4"
-                  rows={3}
-                />
-                <div className="flex justify-end space-x-2">
+                <Tabs defaultValue="edit" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="edit">Edit</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="edit">
+                    <Textarea
+                      value={editedAnchor.description}
+                      onChange={(e) => setEditedAnchor(prev => ({ ...prev, description: e.target.value }))}
+                      className="mb-4 font-mono"
+                      rows={6}
+                      placeholder="Write your markdown here..."
+                    />
+                  </TabsContent>
+                  <TabsContent value="preview">
+                    <div className="prose prose-sm max-w-none p-4 border rounded-md min-h-[150px]">
+                      <ReactMarkdown>{editedAnchor.description}</ReactMarkdown>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+                <div className="flex justify-end space-x-2 mt-4">
                   <Button variant="outline" onClick={() => setIsEditing(false)}>
                     Cancel
                   </Button>
@@ -420,7 +450,9 @@ export const LectureDetailScreen = (): JSX.Element => {
             ) : (
               <>
                 <h2 className="text-xl font-bold mb-2 text-black">{selectedAnchor.title}</h2>
-                <p className="text-gray-700 mb-4">{selectedAnchor.description}</p>
+                <div className="prose prose-sm max-w-none mb-4">
+                  <ReactMarkdown>{selectedAnchor.description}</ReactMarkdown>
+                </div>
                 <div className="flex justify-end space-x-2">
                   <Button
                     variant="destructive"

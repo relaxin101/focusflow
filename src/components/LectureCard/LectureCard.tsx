@@ -11,7 +11,7 @@ interface LectureCardProps {
   date: string;
   isFavorited: boolean;
   hasNotification?: boolean;
-  onToggleFavorite?: (id: string) => void;
+  onToggleFavorite?: (courseId: string) => void;
   showFavoriteButton?: boolean;
 }
 
@@ -55,7 +55,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
             <Button
               variant="ghost"
               className="p-0 h-auto w-auto hover:bg-transparent ml-2"
-              onClick={() => onToggleFavorite(id)}
+              onClick={() => onToggleFavorite(courseId)}
             >
               <StarIcon 
                 className={`w-6 h-6 ${

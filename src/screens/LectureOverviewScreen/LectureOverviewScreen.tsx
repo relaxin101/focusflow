@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { StarIcon } from "lucide-react";
 import { SearchBar } from "../../components/SearchBar/SearchBar";
@@ -12,6 +12,13 @@ export const LectureOverviewScreen = (): JSX.Element => {
   const { courseData, toggleLectureFavorite } = useCourse();
 
   const course = courseData[courseId || ""];
+
+  // Memoize the toggle function
+  const handleToggleFavorite = useCallback((lectureId: string) => {
+    if (courseId) {
+      toggleLectureFavorite(courseId, lectureId);
+    }
+  }, [courseId, toggleLectureFavorite]);
 
   // Filter lectures based on search query
   const filteredLectures = useMemo(() => {
@@ -59,7 +66,7 @@ export const LectureOverviewScreen = (): JSX.Element => {
                 date={lecture.date}
                 isFavorited={lecture.isFavorited}
                 hasNotification={lecture.hasNotification}
-                onToggleFavorite={() => toggleLectureFavorite(courseId || "", lecture.id)}
+                onToggleFavorite={handleToggleFavorite}
               />
             ))}
           </div>

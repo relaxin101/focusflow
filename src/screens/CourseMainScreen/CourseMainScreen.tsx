@@ -11,65 +11,16 @@ export const CourseMainScreen = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState("");
   const { courseData, toggleCoursePin } = useCourse();
 
-  // Course data with pin state management
-  const [courses, setCourses] = useState([
-    {
-      id: "193.127",
-      title: "Interface and Interaction Design",
-      isLive: true,
-      notifications: 2,
-      isPinned: true,
-    },
-    {
-      id: "185.A92",
-      title: "Introduction to Programming 2",
-      isLive: false,
-      notifications: 0,
-      isPinned: true,
-    },
-    {
-      id: "186.866",
-      title: "Algorithms and Data Structures",
-      isLive: false,
-      notifications: 1,
-      isPinned: true,
-    },
-    {
-      id: "a",
-      title: "Algorithms and Data Structures",
-      isLive: false,
-      notifications: 1,
-      isPinned: true,
-    },
-    {
-      id: "b",
-      title: "Algorithms and Data Structures",
-      isLive: false,
-      notifications: 1,
-      isPinned: true,
-    },
-    {
-      id: "c",
-      title: "Algorithms and Data Structures",
-      isLive: false,
-      notifications: 1,
-      isPinned: true,
-    },
-  ]);
-
-  // Toggle pin status
-  const togglePin = (courseId: string) => {
-    setCourses(prevCourses =>
-      prevCourses.map(course =>
-        course.id === courseId
-          ? { ...course, isPinned: !course.isPinned }
-          : course
-      )
-    );
-  };
-
   // Filter and sort courses
   const filteredAndSortedCourses = useMemo(() => {
+    const courses = Object.entries(courseData).map(([id, course]) => ({
+      id,
+      title: course.title,
+      isLive: false, // You might want to add this to the Course interface if needed
+      notifications: 0, // You might want to add this to the Course interface if needed
+      isPinned: course.isPinned
+    }));
+
     const filtered = courses.filter(course => 
       course.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       course.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -80,7 +31,7 @@ export const CourseMainScreen = (): JSX.Element => {
       if (!a.isPinned && b.isPinned) return 1;
       return 0;
     });
-  }, [courses, searchQuery]);
+  }, [courseData, searchQuery]);
 
   return (
     <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
