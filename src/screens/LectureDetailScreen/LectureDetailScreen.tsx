@@ -83,6 +83,27 @@ export const LectureDetailScreen = (): JSX.Element => {
     const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
+    let currentTime = 0;
+    let isPlaying = false;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Store current state when tab becomes hidden
+        if (playerRef.current) {
+          currentTime = playerRef.current.getCurrentTime();
+          isPlaying = playerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING;
+        }
+      } else {
+        // Restore state when tab becomes visible
+        if (playerRef.current) {
+          playerRef.current.seekTo(currentTime);
+          if (isPlaying) {
+            playerRef.current.playVideo();
+          }
+        }
+      }
+    };
+
     window.onYouTubeIframeAPIReady = () => {
       playerRef.current = new window.YT.Player('youtube-player', {
         videoId: lecture?.videoId,
@@ -92,7 +113,9 @@ export const LectureDetailScreen = (): JSX.Element => {
           'playsinline': 1,
           'controls': 1,
           'cc_load_policy': 1,
-          'cc_lang_pref': 'en'
+          'cc_lang_pref': 'en',
+          'enablejsapi': 1,
+          'origin': window.location.origin
         },
         events: {
           'onReady': () => {
@@ -101,12 +124,25 @@ export const LectureDetailScreen = (): JSX.Element => {
           },
           'onStateChange': (event: any) => {
             setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
+          },
+          'onError': () => {
+            // Attempt to reload the player on error
+            if (playerRef.current) {
+              playerRef.current.destroy();
+              setTimeout(() => {
+                window.onYouTubeIframeAPIReady();
+              }, 1000);
+            }
           }
         }
       });
     };
 
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (playerRef.current) {
         playerRef.current.destroy();
       }
