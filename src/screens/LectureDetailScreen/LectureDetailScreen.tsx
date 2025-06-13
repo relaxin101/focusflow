@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeftIcon, PlusIcon, StarIcon, HomeIcon, UserIcon, PlayIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, StarIcon, HomeIcon, UserIcon, PlayIcon, Trash2Icon, PenIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -106,6 +106,11 @@ export const LectureDetailScreen = (): JSX.Element => {
   });
   const [showGlobalAnchors, setShowGlobalAnchors] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAnchor, setEditedAnchor] = useState<{ title: string; description: string }>({
+    title: "",
+    description: ""
+  });
 
   // Convert time to seconds for sorting
   const timeToSeconds = (hours: number, minutes: number, seconds: number): number => {
@@ -153,6 +158,29 @@ export const LectureDetailScreen = (): JSX.Element => {
   // Handle toggles
   const handleGlobalAnchorsToggle = () => setShowGlobalAnchors((prev) => !prev);
   const handleTranscriptToggle = () => setShowTranscript((prev) => !prev);
+
+  // Add this new function to handle editing
+  const handleEditAnchor = () => {
+    if (selectedAnchor) {
+      setAnchors(prevAnchors =>
+        prevAnchors.map(anchor =>
+          anchor.id === selectedAnchor.id
+            ? { ...anchor, title: editedAnchor.title, description: editedAnchor.description }
+            : anchor
+        )
+      );
+      setIsEditing(false);
+      setSelectedAnchor(null);
+    }
+  };
+
+  // Add this new function to handle deletion
+  const handleDeleteAnchor = () => {
+    if (selectedAnchor) {
+      setAnchors(prevAnchors => prevAnchors.filter(anchor => anchor.id !== selectedAnchor.id));
+      setSelectedAnchor(null);
+    }
+  };
 
   if (!lecture) {
     return (
@@ -341,7 +369,10 @@ export const LectureDetailScreen = (): JSX.Element => {
           <div className="bg-white rounded-xl shadow-lg w-[90vw] max-w-md p-6 relative flex flex-col">
             <button
               className="absolute top-2 right-2 text-2xl text-gray-400 hover:text-black"
-              onClick={() => setSelectedAnchor(null)}
+              onClick={() => {
+                setSelectedAnchor(null);
+                setIsEditing(false);
+              }}
               aria-label="Close"
             >
               ×
@@ -349,10 +380,59 @@ export const LectureDetailScreen = (): JSX.Element => {
             <div className="flex items-center space-x-2 mb-4">
               <PlayIcon className="w-5 h-5 text-blue-600" />
               <span className="text-base font-semibold text-blue-600">{selectedAnchor.timestamp}</span>
+              {!isEditing && (
+                <button
+                  onClick={() => {
+                    setIsEditing(true);
+                    setEditedAnchor({
+                      title: selectedAnchor.title,
+                      description: selectedAnchor.description
+                    });
+                  }}
+                  className="ml-2 p-1 hover:bg-gray-100 rounded-full"
+                >
+                  <PenIcon className="w-4 h-4 text-blue-600" />
+                </button>
+              )}
             </div>
-            <h2 className="text-xl font-bold mb-2 text-black">{selectedAnchor.title}</h2>
-            <p className="text-gray-700 mb-4">{selectedAnchor.description}</p>
-            <Button onClick={() => setSelectedAnchor(null)} className="self-end mt-2">Back</Button>
+            {isEditing ? (
+              <>
+                <Input
+                  value={editedAnchor.title}
+                  onChange={(e) => setEditedAnchor(prev => ({ ...prev, title: e.target.value }))}
+                  className="mb-2"
+                />
+                <Textarea
+                  value={editedAnchor.description}
+                  onChange={(e) => setEditedAnchor(prev => ({ ...prev, description: e.target.value }))}
+                  className="mb-4"
+                  rows={3}
+                />
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleEditAnchor}>
+                    Save Changes
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold mb-2 text-black">{selectedAnchor.title}</h2>
+                <p className="text-gray-700 mb-4">{selectedAnchor.description}</p>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAnchor}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2Icon className="w-4 h-4" />
+                    Delete
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
