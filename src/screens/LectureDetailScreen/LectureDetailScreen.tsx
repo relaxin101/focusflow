@@ -37,7 +37,11 @@ declare global {
 export const LectureDetailScreen = (): JSX.Element => {
   const { courseId, lectureId } = useParams<{ courseId: string; lectureId: string }>();
   const playerRef = useRef<any>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   // Explicitly type lectureData for string indexing
   const lectureData: Record<string, Record<string, {
@@ -125,13 +129,11 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   // Initialize YouTube Player API
   useEffect(() => {
-    // Load the YouTube IFrame Player API code asynchronously
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
-    // Initialize the player when the API is ready
     window.onYouTubeIframeAPIReady = () => {
       playerRef.current = new window.YT.Player('youtube-player', {
         videoId: lecture?.videoId,
@@ -142,18 +144,56 @@ export const LectureDetailScreen = (): JSX.Element => {
           'controls': 1
         },
         events: {
-          'onReady': () => setIsPlayerReady(true),
+          'onReady': () => {
+            setIsPlayerReady(true);
+            setDuration(playerRef.current.getDuration());
+          },
+          'onStateChange': (event: any) => {
+            setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
+          }
         }
       });
     };
 
     return () => {
-      // Cleanup
       if (playerRef.current) {
         playerRef.current.destroy();
       }
     };
   }, [lecture?.videoId]);
+
+  // Update current time and handle anchor scrolling
+  useEffect(() => {
+    if (!isPlayerReady || !isPlaying) return;
+
+    const interval = setInterval(() => {
+      if (playerRef.current) {
+        const time = playerRef.current.getCurrentTime();
+        setCurrentTime(time);
+
+        // Find the current anchor
+        const currentAnchor = anchors.find(anchor => 
+          anchor.timestampSeconds <= time && 
+          (anchors[anchors.indexOf(anchor) + 1]?.timestampSeconds > time || !anchors[anchors.indexOf(anchor) + 1])
+        );
+
+        // Scroll to the current anchor
+        if (currentAnchor && timelineRef.current) {
+          const anchorElement = document.getElementById(`anchor-${currentAnchor.id}`);
+          if (anchorElement) {
+            const containerRect = timelineRef.current.getBoundingClientRect();
+            const anchorRect = anchorElement.getBoundingClientRect();
+            
+            if (anchorRect.top < containerRect.top || anchorRect.bottom > containerRect.bottom) {
+              anchorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPlayerReady, isPlaying, anchors]);
 
   // Function to get current video time
   const getCurrentVideoTime = () => {
@@ -324,15 +364,40 @@ export const LectureDetailScreen = (): JSX.Element => {
         )}
 
         {/* Timeline */}
-        <div className="flex-1 overflow-y-auto px-6 pb-6 relative">
-          {/* Timeline vertical line */}
-          <div className="absolute left-8 top-0 bottom-0 w-1 bg-blue-300 rounded-full z-0" style={{marginLeft: '-2px'}}></div>
+        <div ref={timelineRef} className="flex-1 overflow-y-auto px-6 pb-6 relative">
+          {/* Progress bar */}
+          <div className="absolute left-8 top-0 bottom-0 w-1 bg-blue-300 rounded-full z-0" style={{marginLeft: '-2px'}}>
+            <div 
+              className="absolute top-0 left-0 w-full bg-blue-600 rounded-full transition-all duration-1000"
+              style={{ 
+                height: `${(currentTime / duration) * 100}%`,
+                transition: 'height 1s linear'
+              }}
+            />
+          </div>
+
           <div className="flex flex-col gap-8 relative z-10">
             {timelineAnchors.map((anchor, idx) => (
-              <div key={anchor.id} className="flex items-center gap-4 cursor-pointer group" onClick={() => setSelectedAnchor(anchor)}>
+              <div 
+                key={anchor.id} 
+                id={`anchor-${anchor.id}`}
+                className={`flex items-center gap-4 cursor-pointer group ${
+                  currentTime >= anchor.timestampSeconds ? 'opacity-100' : 'opacity-50'
+                }`} 
+                onClick={() => {
+                  if (playerRef.current) {
+                    playerRef.current.seekTo(anchor.timestampSeconds);
+                  }
+                  setSelectedAnchor(anchor);
+                }}
+              >
                 {/* Timeline node */}
                 <div className="flex flex-col items-center">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-4 ${showGlobalAnchors ? 'border-blue-700 bg-white' : 'border-blue-400 bg-white'} group-hover:bg-blue-100 transition`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-4 ${
+                    showGlobalAnchors ? 'border-blue-700 bg-white' : 'border-blue-400 bg-white'
+                  } group-hover:bg-blue-100 transition ${
+                    currentTime >= anchor.timestampSeconds ? 'border-blue-600' : ''
+                  }`}>
                     <span className="text-xs font-bold text-blue-700">{anchor.title[0]}</span>
                   </div>
                   {idx !== timelineAnchors.length - 1 && (
@@ -340,7 +405,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                   )}
                 </div>
                 {/* Anchor info */}
-                <div className="flex-1 bg-white rounded-lg px-4 py-2 shadow-sm border border-blue-100 group-hover:bg-blue-50 transition">
+                <div className={`flex-1 bg-white rounded-lg px-4 py-2 shadow-sm border border-blue-100 group-hover:bg-blue-50 transition ${
+                  currentTime >= anchor.timestampSeconds ? 'border-blue-400' : ''
+                }`}>
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm text-blue-900">{anchor.title}</span>
                     <span className="text-xs text-blue-600 font-mono">{anchor.timestamp}</span>
