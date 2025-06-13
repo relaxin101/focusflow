@@ -58,7 +58,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         </Link>
 
         {/* Course title */}
-        <div className="flex justify-between items-center mt-2 px-2">
+        <div className="flex justify-start items-center mt-2 px-6">
           <h2 className="[font-family:'Inter',Helvetica] font-normal text-black text-xl tracking-[0] leading-5">
             {id}&nbsp;&nbsp;{title}
           </h2>
@@ -71,13 +71,13 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           >
             {isPinned ? (
               <img
-                className="w-[25px] h-[25px] object-cover"
+                className="w-[32px] h-[32px] object-cover"
                 alt="Pin filled"
                 src="/icons8-pin-50-1--3.png"
               />
             ) : (
               <svg
-                className="w-[25px] h-[25px] text-gray-400"
+                className="w-[32px] h-[32px] text-gray-400"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

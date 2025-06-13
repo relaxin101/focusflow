@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { PlayIcon, StarIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { Separator } from "../ui/separator";
 
 interface LectureCardProps {
   id: string;
@@ -26,47 +27,52 @@ export const LectureCard: React.FC<LectureCardProps> = ({
   showFavoriteButton = true,
 }) => {
   return (
-    <Card className="border border-gray-200 shadow-sm">
+    <Card className="w-[372px] h-[198px] mx-auto border-none shadow-none">
       <CardContent className="p-0">
         {/* Video thumbnail area */}
         <Link to={`/course/${courseId}/lecture/${id}`}>
-          <div className="relative w-full h-[120px] bg-celestial-blue flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity">
+          <div className="relative w-[349px] h-[150px] mx-auto bg-celestial-blue flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity">
             <PlayIcon className="w-12 h-12 text-white" />
             
             {/* Notification indicator */}
             {hasNotification && (
-              <div className="absolute top-2 right-2 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-black">1</span>
+              <div className="absolute w-[22px] h-5 top-2 right-2">
+                <div className="relative w-5 h-5 bg-[url(/ellipse-8.svg)] bg-[100%_100%]">
+                  <div className="absolute w-2.5 h-5 top-0 left-[5px] [font-family:'Inter',Helvetica] font-normal text-black text-xs text-center tracking-[0] leading-5 whitespace-nowrap">
+                    1
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </Link>
         
         {/* Lecture info */}
-        <div className="p-3 flex items-center justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-black">
-              {courseId}: {title} / {date}
-            </p>
-          </div>
+        <div className="flex justify-start items-center mt-2 px-6">
+          <h2 className="[font-family:'Inter',Helvetica] font-normal text-black text-xl tracking-[0] leading-5 max-w-[300px] break-words">
+            {courseId}&nbsp;&nbsp;{title} / {date}
+          </h2>
           
           {/* Star toggle button */}
           {showFavoriteButton && onToggleFavorite && (
             <Button
               variant="ghost"
-              className="p-0 h-auto w-auto hover:bg-transparent ml-2"
+              className="p-0 h-auto w-auto hover:bg-transparent flex items-center"
               onClick={() => onToggleFavorite(courseId)}
             >
               <StarIcon 
-                className={`w-6 h-6 ${
+                className={`!w-[32px] !h-[32px] stroke-[2.5] ${
                   isFavorited 
-                    ? 'text-yellow-500 fill-yellow-500' 
-                    : 'text-gray-400'
+                    ? 'text-yellow-500 fill-yellow-500 stroke-black' 
+                    : 'text-gray-400 stroke-black'
                 }`}
+                style={{ width: '32px', height: '32px' }}
               />
             </Button>
           )}
         </div>
+
+        <Separator className="mt-3 w-[370px] mx-auto" />
       </CardContent>
     </Card>
   );
