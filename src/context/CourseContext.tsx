@@ -6,13 +6,13 @@ interface Lecture {
   date: string;
   isFavorited: boolean;
   hasNotification?: boolean;
+  isLive?: boolean;
 }
 
 interface Course {
   title: string;
   lectures: Lecture[];
   isPinned: boolean;
-  isLive?: boolean;
 }
 
 interface CourseData {
@@ -29,32 +29,38 @@ const initialCourseData: CourseData = {
   "193.127": {
     title: "Interface and Interaction Design",
     lectures: [
-      { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true },
+      { id: "1", title: "Color Theory", date: "08.05.2025", isFavorited: true, isLive: true },
       { id: "2", title: "Guest Lecture", date: "10.04.2025", isFavorited: false },
       { id: "3", title: "Wireframes", date: "03.04.2025", isFavorited: false, hasNotification: true },
     ],
-    isPinned: true,
-    isLive: true
+    isPinned: true
   },
   "185.A92": {
     title: "Introduction to Programming 2",
     lectures: [
-      { id: "1", title: "Object-Oriented Programming", date: "15.05.2025", isFavorited: false },
+      { id: "1", title: "Object-Oriented Programming", date: "15.05.2025", isFavorited: false, isLive: true },
       { id: "2", title: "Data Structures", date: "12.05.2025", isFavorited: true },
       { id: "3", title: "Algorithms", date: "08.05.2025", isFavorited: false },
     ],
-    isPinned: true,
-    isLive: false
+    isPinned: true
   },
   "186.866": {
     title: "Algorithms and Data Structures",
     lectures: [
       { id: "1", title: "Sorting Algorithms", date: "20.05.2025", isFavorited: false },
-      { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true },
+      { id: "2", title: "Graph Theory", date: "17.05.2025", isFavorited: true, isLive: true },
       { id: "3", title: "Dynamic Programming", date: "14.05.2025", isFavorited: false },
     ],
-    isPinned: true,
-    isLive: false
+    isPinned: true
+  },
+  "104.218": {
+    title: "Statistics",
+    lectures: [
+      { id: "1", title: "Probability Theory", date: "22.05.2025", isFavorited: false },
+      { id: "2", title: "Statistical Inference", date: "19.05.2025", isFavorited: false },
+      { id: "3", title: "Regression Analysis", date: "16.05.2025", isFavorited: false },
+    ],
+    isPinned: false
   }
 };
 

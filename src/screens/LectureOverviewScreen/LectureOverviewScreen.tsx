@@ -29,9 +29,9 @@ export const LectureOverviewScreen = (): JSX.Element => {
         lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         lecture.date.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // A lecture is considered unwatched if it has notifications or if the course is live
-      const isUnwatched = lecture.hasNotification || course.isLive;
-      const matchesLiveFilter = !filters.showLive || course.isLive;
+      // A lecture is considered unwatched if it has notifications or is live
+      const isUnwatched = lecture.hasNotification || lecture.isLive;
+      const matchesLiveFilter = !filters.showLive || lecture.isLive;
       const matchesUnwatchedFilter = !filters.showUnwatched || isUnwatched;
 
       return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
@@ -76,7 +76,8 @@ export const LectureOverviewScreen = (): JSX.Element => {
                 title={lecture.title}
                 date={lecture.date}
                 isFavorited={lecture.isFavorited}
-                hasNotification={lecture.hasNotification || course.isLive}
+                hasNotification={lecture.hasNotification}
+                isLive={lecture.isLive}
                 onToggleFavorite={handleToggleFavorite}
               />
             ))}

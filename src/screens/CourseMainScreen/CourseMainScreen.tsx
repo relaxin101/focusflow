@@ -14,14 +14,23 @@ export const CourseMainScreen = (): JSX.Element => {
 
   // Filter and sort courses
   const filteredAndSortedCourses = useMemo(() => {
-    const courses = Object.entries(courseData).map(([id, course]) => ({
-      id,
-      title: course.title,
-      isLive: false, // You might want to add this to the Course interface if needed
-      notifications: course.lectures.filter(l => l.hasNotification).length,
-      isPinned: course.isPinned,
-      hasUnwatchedContent: course.lectures.some(l => l.hasNotification)
-    }));
+    const courses = Object.entries(courseData).map(([id, course]) => {
+      // Calculate if any lecture is live
+      const hasLiveLecture = course.lectures.some(lecture => lecture.isLive);
+      // Count lectures with notifications
+      const notifications = course.lectures.filter(l => l.hasNotification).length;
+      // A course has unwatched content if it has notifications or any live lecture
+      const hasUnwatchedContent = notifications > 0 || hasLiveLecture;
+
+      return {
+        id,
+        title: course.title,
+        isLive: hasLiveLecture,
+        notifications,
+        isPinned: course.isPinned,
+        hasUnwatchedContent
+      };
+    });
 
     const filtered = courses.filter(course => {
       const matchesSearch = 

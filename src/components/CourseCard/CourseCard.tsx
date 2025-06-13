@@ -58,7 +58,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         </Link>
 
         {/* Course title */}
-        <div className="flex justify-start items-center mt-2 px-6">
+        <div className="flex justify-between items-center mt-2 px-6">
           <h2 className="[font-family:'Inter',Helvetica] font-normal text-black text-xl tracking-[0] leading-5">
             {id}&nbsp;&nbsp;{title}
           </h2>
@@ -76,18 +76,11 @@ export const CourseCard: React.FC<CourseCardProps> = ({
                 src="/icons8-pin-50-1--3.png"
               />
             ) : (
-              <svg
-                className="w-[32px] h-[32px] text-gray-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M9 9V5a3 3 0 0 1 6 0v4"/>
-                <path d="M12 9v13"/>
-                <path d="M9 22h6"/>
-                <path d="M8 9h8l-1 7H9L8 9z"/>
-              </svg>
+              <img
+                className="w-[32px] h-[32px] object-cover"
+                alt="Pin outline"
+                src="/icons8-pin-50(2).png"
+              />
             )}
           </Button>
         </div>

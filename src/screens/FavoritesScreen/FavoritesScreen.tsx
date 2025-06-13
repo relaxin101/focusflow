@@ -15,6 +15,7 @@ interface Lecture {
   date: string;
   isFavorited: boolean;
   hasNotification?: boolean;
+  isLive?: boolean;
 }
 
 export const FavoritesScreen = (): JSX.Element => {
@@ -50,15 +51,14 @@ export const FavoritesScreen = (): JSX.Element => {
         lecture.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         lecture.date.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const course = courseData[lecture.courseId];
-      // A lecture is considered unwatched if it has notifications or if the course is live
-      const isUnwatched = lecture.hasNotification || course.isLive;
-      const matchesLiveFilter = !filters.showLive || course.isLive;
+      // A lecture is considered unwatched if it has notifications or is live
+      const isUnwatched = lecture.hasNotification || lecture.isLive;
+      const matchesLiveFilter = !filters.showLive || lecture.isLive;
       const matchesUnwatchedFilter = !filters.showUnwatched || isUnwatched;
 
       return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
     });
-  }, [favoriteLectures, searchQuery, filters, courseData]);
+  }, [favoriteLectures, searchQuery, filters]);
 
   // Handle lecture favorite toggle
   const handleToggleFavorite = (lectureId: string, courseId: string) => {
@@ -91,21 +91,19 @@ export const FavoritesScreen = (): JSX.Element => {
         ) : (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-black mb-4">Favorite Lectures</h2>
-            {filteredFavoriteLectures.map((lecture) => {
-              const course = courseData[lecture.courseId];
-              return (
-                <LectureCard
-                  key={`${lecture.courseId}-${lecture.id}`}
-                  id={lecture.id}
-                  courseId={lecture.courseId}
-                  title={lecture.title}
-                  date={lecture.date}
-                  isFavorited={lecture.isFavorited}
-                  hasNotification={lecture.hasNotification || course.isLive}
-                  onToggleFavorite={() => handleToggleFavorite(lecture.id, lecture.courseId)}
-                />
-              );
-            })}
+            {filteredFavoriteLectures.map((lecture) => (
+              <LectureCard
+                key={`${lecture.courseId}-${lecture.id}`}
+                id={lecture.id}
+                courseId={lecture.courseId}
+                title={lecture.title}
+                date={lecture.date}
+                isFavorited={lecture.isFavorited}
+                hasNotification={lecture.hasNotification}
+                isLive={lecture.isLive}
+                onToggleFavorite={() => handleToggleFavorite(lecture.id, lecture.courseId)}
+              />
+            ))}
           </div>
         )}
       </main>
