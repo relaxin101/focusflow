@@ -167,7 +167,7 @@ export const LectureDetailScreen = (): JSX.Element => {
   const timelineAnchors = showGlobalAnchors ? globalAnchors : anchors;
 
   return (
-    <div className="bg-white min-h-screen max-w-[393px] mx-auto relative">
+    <div className="bg-[#8bb3e0] min-h-screen max-w-[393px] mx-auto relative">
       {/* Header */}
       <header className="fixed w-full max-w-[393px] h-[50px] top-0 left-1/2 -translate-x-1/2 bg-[#5586c94c] z-10">
         <div className="flex items-center justify-between px-4 h-full">
