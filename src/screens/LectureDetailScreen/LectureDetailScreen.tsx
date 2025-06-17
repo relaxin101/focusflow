@@ -74,6 +74,7 @@ export const LectureDetailScreen = (): JSX.Element => {
   });
   const [selectedGlobalAnchor, setSelectedGlobalAnchor] = useState<GlobalAnchor | null>(null);
   const [publishAsGlobal, setPublishAsGlobal] = useState(false);
+  const [showNextLectureDialog, setShowNextLectureDialog] = useState(false);
 
   // Use globalAnchors from the lecture object if present, otherwise fallback to []
   const globalAnchors = lecture?.globalAnchors || [];
@@ -84,6 +85,22 @@ export const LectureDetailScreen = (): JSX.Element => {
       updateLecture(courseId, lectureId, { hasNotification: false });
     }
   }, [lecture, courseId, lectureId, updateLecture]);
+
+  // Helper function to find the next lecture
+  const getNextLecture = () => {
+    if (!courseId || !lectureId || !courseData[courseId]) return null;
+    
+    const course = courseData[courseId];
+    const currentIndex = course.lectures.findIndex(l => l.id === lectureId);
+    
+    if (currentIndex === -1 || currentIndex === course.lectures.length - 1) {
+      return null; // No next lecture
+    }
+    
+    return course.lectures[currentIndex + 1];
+  };
+
+  const nextLecture = getNextLecture();
 
   // Initialize YouTube Player API
   useEffect(() => {
@@ -133,6 +150,10 @@ export const LectureDetailScreen = (): JSX.Element => {
           },
           'onStateChange': (event: any) => {
             setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
+            // Check if video has ended
+            if (event.data === window.YT.PlayerState.ENDED) {
+              setShowNextLectureDialog(true);
+            }
           },
           'onError': () => {
             // Attempt to reload the player on error
@@ -978,6 +999,94 @@ export const LectureDetailScreen = (): JSX.Element => {
           </div>
         </div>
       )}
+
+      {/* Next Lecture Dialog */}
+      <Dialog open={showNextLectureDialog} onOpenChange={setShowNextLectureDialog}>
+        <DialogContent className={`max-w-md mx-auto rounded-xl p-6 transition-colors duration-200 ${
+          isDarkMode ? 'bg-[#2f3136] text-white' : 'bg-blue-900 text-white'
+        }`}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">
+              {nextLecture ? 'Continue Learning?' : 'Video Complete!'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {nextLecture ? (
+              <>
+                <p className="text-sm text-gray-300">
+                  Would you like to continue with the next lecture?
+                </p>
+                <div className={`p-4 rounded-lg border transition-colors duration-200 ${
+                  isDarkMode ? 'bg-[#40444b] border-[#4f545c]' : 'bg-blue-800 border-blue-700'
+                }`}>
+                  <h3 className="font-semibold text-white">
+                    {nextLecture.title}
+                  </h3>
+                  <p className="text-sm mt-1 text-gray-300">
+                    {nextLecture.date}
+                  </p>
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    onClick={() => setShowNextLectureDialog(false)}
+                    className={`transition-colors duration-200 ${
+                      isDarkMode 
+                        ? 'bg-transparent border-white text-white hover:bg-[#40444b]' 
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    Stay Here
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowNextLectureDialog(false);
+                      window.location.href = `/course/${courseId}/lecture/${nextLecture.id}`;
+                    }}
+                    className={`transition-colors duration-200 ${
+                      isDarkMode 
+                        ? 'bg-transparent border-white text-white hover:bg-[#40444b]' 
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    Play Next Lecture
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-300">
+                  You've completed all lectures in this course!
+                </p>
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    onClick={() => setShowNextLectureDialog(false)}
+                    className={`transition-colors duration-200 ${
+                      isDarkMode 
+                        ? 'bg-transparent border-white text-white hover:bg-[#40444b]' 
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowNextLectureDialog(false);
+                      window.location.href = `/course/${courseId}`;
+                    }}
+                    className={`transition-colors duration-200 ${
+                      isDarkMode 
+                        ? 'bg-transparent border-white text-white hover:bg-[#40444b]' 
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    Back to Course
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <NavigationBar />
     </div>
