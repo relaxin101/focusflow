@@ -293,6 +293,128 @@ export const LectureDetailScreen = (): JSX.Element => {
   const handleGlobalAnchorsToggle = () => setShowGlobalAnchors((prev) => !prev);
   const handleTranscriptToggle = () => setShowTranscript((prev) => !prev);
 
+  // Time input validation and formatting functions
+  const validateAndFormatTimeInput = (value: string, maxValue: number, field: 'hours' | 'minutes' | 'seconds') => {
+    // Remove any non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    if (numericValue === '') {
+      return '0';
+    }
+    
+    let numValue = parseInt(numericValue);
+    
+    // Ensure the value is within valid range
+    if (numValue < 0) {
+      numValue = 0;
+    } else if (numValue > maxValue) {
+      numValue = maxValue;
+    }
+    
+    // For minutes and seconds, ensure they're padded with leading zero if needed
+    if (field === 'minutes' || field === 'seconds') {
+      return numValue.toString().padStart(2, '0');
+    }
+    
+    return numValue.toString();
+  };
+
+  const handleTimeInputChange = (value: string, field: 'hours' | 'minutes' | 'seconds') => {
+    let maxValue: number;
+    
+    switch (field) {
+      case 'hours':
+        maxValue = Math.floor(duration / 3600);
+        break;
+      case 'minutes':
+        maxValue = duration >= 3600 ? 59 : Math.floor((duration % 3600) / 60);
+        break;
+      case 'seconds':
+        maxValue = 59;
+        break;
+      default:
+        maxValue = 59;
+    }
+    
+    const formattedValue = validateAndFormatTimeInput(value, maxValue, field);
+    
+    setNewAnchor(prev => ({ ...prev, [field]: formattedValue }));
+  };
+
+  const handleTimeInputBlur = (field: 'hours' | 'minutes' | 'seconds') => {
+    // Ensure proper formatting on blur
+    const currentValue = newAnchor[field];
+    let maxValue: number;
+    
+    switch (field) {
+      case 'hours':
+        maxValue = Math.floor(duration / 3600);
+        break;
+      case 'minutes':
+        maxValue = duration >= 3600 ? 59 : Math.floor((duration % 3600) / 60);
+        break;
+      case 'seconds':
+        maxValue = 59;
+        break;
+      default:
+        maxValue = 59;
+    }
+    
+    const formattedValue = validateAndFormatTimeInput(currentValue, maxValue, field);
+    
+    if (formattedValue !== currentValue) {
+      setNewAnchor(prev => ({ ...prev, [field]: formattedValue }));
+    }
+  };
+
+  const handleTimeInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, field: 'hours' | 'minutes' | 'seconds') => {
+    // Allow: backspace, delete, tab, escape, enter, arrow keys, and numbers
+    if ([8, 9, 27, 13, 37, 38, 39, 40, 46].includes(e.keyCode) || 
+        (e.keyCode >= 48 && e.keyCode <= 57) || 
+        (e.keyCode >= 96 && e.keyCode <= 105)) {
+      
+      // Handle up/down arrow keys for increment/decrement
+      if (e.keyCode === 38 || e.keyCode === 40) {
+        e.preventDefault();
+        const currentValue = parseInt(newAnchor[field]) || 0;
+        let maxValue: number;
+        
+        switch (field) {
+          case 'hours':
+            maxValue = Math.floor(duration / 3600);
+            break;
+          case 'minutes':
+            maxValue = duration >= 3600 ? 59 : Math.floor((duration % 3600) / 60);
+            break;
+          case 'seconds':
+            maxValue = 59;
+            break;
+          default:
+            maxValue = 59;
+        }
+        
+        let newValue: number;
+        if (e.keyCode === 38) { // Up arrow
+          newValue = currentValue >= maxValue ? 0 : currentValue + 1;
+        } else { // Down arrow
+          newValue = currentValue <= 0 ? maxValue : currentValue - 1;
+        }
+        
+        const formattedValue = field === 'minutes' || field === 'seconds' 
+          ? newValue.toString().padStart(2, '0') 
+          : newValue.toString();
+        
+        setNewAnchor(prev => ({ ...prev, [field]: formattedValue }));
+        return;
+      }
+      
+      return;
+    }
+    
+    // Prevent any other key input
+    e.preventDefault();
+  };
+
   // Add this new function to handle editing
   const handleEditAnchor = () => {
     if (selectedAnchor) {
@@ -406,9 +528,9 @@ export const LectureDetailScreen = (): JSX.Element => {
         </div>
 
         {/* Timeline */}
-        <div ref={timelineRef} className="flex-1 overflow-y-auto px-6 pb-6 relative">
+        <div ref={timelineRef} className="flex-1 overflow-y-auto px-6 pb-6 pt-4 relative">
           {/* Progress bar */}
-          <div className="absolute left-8 top-0 bottom-0 w-1 bg-blue-300 rounded-full z-0" style={{marginLeft: '-2px'}}>
+          <div className="absolute left-8 top-4 bottom-0 w-1 bg-blue-300 rounded-full z-0" style={{marginLeft: '-2px'}}>
             <div 
               className="absolute top-0 left-0 w-full bg-blue-600 rounded-full transition-all duration-1000"
               style={{ 
@@ -422,9 +544,10 @@ export const LectureDetailScreen = (): JSX.Element => {
             {(() => {
               // Group anchors by their position (with a small threshold for overlap)
               const groupedAnchors = timelineAnchors.reduce((groups: { position: number; anchors: (Anchor & { position: number })[] }[], anchor: Anchor) => {
-                const position = (anchor.timestampSeconds / duration) * 100;
+                // Add offset to prevent anchors at 0:00 from being cut off
+                const position = Math.max(4, (anchor.timestampSeconds / duration) * 100);
                 const existingGroup = groups.find((group) =>
-                  Math.abs(group.position - position) < 5 // 5% threshold for overlap
+                  Math.abs(group.position - position) < 12 // 15% threshold for overlap
                 );
                 if (existingGroup) {
                   existingGroup.anchors.push({ ...anchor, position });
@@ -512,12 +635,14 @@ export const LectureDetailScreen = (): JSX.Element => {
                     <div className="flex items-center">
                       <Input
                         id="hours"
-                        type="number"
-                        min="0"
-                        max={Math.floor(duration / 3600)}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
                         value={newAnchor.hours}
-                        onChange={(e) => setNewAnchor(prev => ({ ...prev, hours: e.target.value }))}
-                        className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0"
+                        onChange={(e) => handleTimeInputChange(e.target.value, 'hours')}
+                        onBlur={() => handleTimeInputBlur('hours')}
+                        onKeyDown={(e) => handleTimeInputKeyDown(e, 'hours')}
+                        className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0 text-center"
                       />
                       <Label htmlFor="hours" className="text-xs text-white ml-1 mr-2">h</Label>
                     </div>
@@ -525,27 +650,49 @@ export const LectureDetailScreen = (): JSX.Element => {
                   <div className="flex items-center">
                     <Input
                       id="minutes"
-                      type="number"
-                      min="0"
-                      max={duration >= 3600 ? 59 : Math.floor((duration % 3600) / 60)}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="00"
                       value={newAnchor.minutes}
-                      onChange={(e) => setNewAnchor(prev => ({ ...prev, minutes: e.target.value }))}
-                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0"
+                      onChange={(e) => handleTimeInputChange(e.target.value, 'minutes')}
+                      onBlur={() => handleTimeInputBlur('minutes')}
+                      onKeyDown={(e) => handleTimeInputKeyDown(e, 'minutes')}
+                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0 text-center"
                     />
                     <Label htmlFor="minutes" className="text-xs text-white ml-1 mr-2">min</Label>
                   </div>
                   <div className="flex items-center">
                     <Input
                       id="seconds"
-                      type="number"
-                      min="0"
-                      max={59}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="00"
                       value={newAnchor.seconds}
-                      onChange={(e) => setNewAnchor(prev => ({ ...prev, seconds: e.target.value }))}
-                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0"
+                      onChange={(e) => handleTimeInputChange(e.target.value, 'seconds')}
+                      onBlur={() => handleTimeInputBlur('seconds')}
+                      onKeyDown={(e) => handleTimeInputKeyDown(e, 'seconds')}
+                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0 text-center"
                     />
                     <Label htmlFor="seconds" className="text-xs text-white ml-1 mr-2">s</Label>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentTime = getCurrentVideoTime();
+                      if (currentTime !== null) {
+                        const { hours, minutes, seconds } = formatTimeFromSeconds(currentTime);
+                        setNewAnchor(prev => ({
+                          ...prev,
+                          hours,
+                          minutes,
+                          seconds
+                        }));
+                      }
+                    }}
+                    className="ml-4 px-2 py-1 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded transition-colors"
+                  >
+                    Use Current Time
+                  </button>
                 </div>
               </div>
               <div>
@@ -582,7 +729,7 @@ export const LectureDetailScreen = (): JSX.Element => {
               <div className="flex justify-end space-x-2">
                 <Button 
                   onClick={handleSaveAnchor}
-                  disabled={!newAnchor.title.trim() || !newAnchor.description.trim()}
+                  disabled={!newAnchor.title.trim()}
                 >
                   Add Anchor
                 </Button>
@@ -691,6 +838,17 @@ export const LectureDetailScreen = (): JSX.Element => {
               ×
             </button>
             <div className="flex items-center space-x-2 mb-4">
+              <button
+                onClick={() => {
+                  if (playerRef.current) {
+                    playerRef.current.seekTo(selectedGlobalAnchor.timestampSeconds);
+                    playerRef.current.playVideo();
+                  }
+                }}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <PlayIcon className="w-5 h-5 text-blue-600" />
+              </button>
               <span className="text-base font-semibold text-blue-600">{selectedGlobalAnchor.timestamp}</span>
               <span className="text-xs text-gray-500">by {selectedGlobalAnchor.author}</span>
             </div>
