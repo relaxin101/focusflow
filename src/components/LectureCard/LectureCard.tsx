@@ -15,6 +15,7 @@ interface LectureCardProps {
   isFavorited: boolean;
   hasNotification?: boolean;
   isLive?: boolean;
+  videoId?: string;
   onToggleFavorite?: (lectureId: string) => void;
   showFavoriteButton?: boolean;
 }
@@ -27,6 +28,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
   isFavorited,
   hasNotification,
   isLive,
+  videoId,
   onToggleFavorite,
   showFavoriteButton = true,
 }) => {
@@ -39,14 +41,32 @@ export const LectureCard: React.FC<LectureCardProps> = ({
       <CardContent className="p-0">
         {/* Video thumbnail area */}
         <Link to={`/course/${courseId}/lecture/${id}`}>
-          <div className={`relative w-[349px] h-[150px] mx-auto flex items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-200 ${
+          <div className={`relative w-[349px] h-[150px] mx-auto flex items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-200 overflow-hidden ${
             isDarkMode ? 'bg-[#2f3136]' : 'bg-celestial-blue'
           }`}>
-            <PlayIcon className="w-12 h-12 text-white" />
+            {videoId ? (
+              <>
+                <img 
+                  src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                  alt={`${title} thumbnail`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to default background if thumbnail fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                  <PlayIcon className="w-12 h-12 text-white drop-shadow-lg" />
+                </div>
+              </>
+            ) : (
+              <PlayIcon className="w-12 h-12 text-white" />
+            )}
             
             {/* Notification indicator */}
             {(hasNotification || isLive) && (
-              <div className="absolute w-[22px] h-5 top-2 right-2">
+              <div className="absolute w-[22px] h-5 top-2 right-2 z-10">
                 <div className="relative w-5 h-5 bg-[url(/ellipse-8.svg)] bg-[100%_100%]">
                   <div className={`absolute w-2.5 h-5 top-0 left-[5px] [font-family:'Inter',Helvetica] font-normal text-xs text-center tracking-[0] leading-5 whitespace-nowrap transition-colors duration-200 ${
                     isDarkMode ? 'text-white' : 'text-black'
@@ -59,7 +79,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
 
             {/* Live indicator */}
             {isLive && (
-              <div className="absolute w-9 h-4 top-2.5 right-10">
+              <div className="absolute w-9 h-4 top-2.5 right-10 z-10">
                 <Badge className="absolute w-[26px] h-4 top-0 left-2 bg-transparent text-[#a40000] text-xs text-center tracking-[0] leading-5 whitespace-nowrap p-0">
                   LIVE
                 </Badge>

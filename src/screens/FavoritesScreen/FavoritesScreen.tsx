@@ -17,6 +17,7 @@ interface Lecture {
   isFavorited: boolean;
   hasNotification?: boolean;
   isLive?: boolean;
+  videoId?: string;
 }
 
 export const FavoritesScreen = (): JSX.Element => {
@@ -113,6 +114,7 @@ export const FavoritesScreen = (): JSX.Element => {
                 isFavorited={lecture.isFavorited}
                 hasNotification={lecture.hasNotification}
                 isLive={lecture.isLive}
+                videoId={lecture.videoId}
                 onToggleFavorite={() => handleToggleFavorite(lecture.id, lecture.courseId)}
               />
             ))}

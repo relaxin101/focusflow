@@ -100,6 +100,7 @@ export const LectureOverviewScreen = (): JSX.Element => {
                 isFavorited={lecture.isFavorited}
                 hasNotification={lecture.hasNotification}
                 isLive={lecture.isLive}
+                videoId={lecture.videoId}
                 onToggleFavorite={handleToggleFavorite}
               />
             ))}
