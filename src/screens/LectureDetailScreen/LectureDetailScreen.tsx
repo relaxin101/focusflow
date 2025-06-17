@@ -75,6 +75,7 @@ export const LectureDetailScreen = (): JSX.Element => {
   const [selectedGlobalAnchor, setSelectedGlobalAnchor] = useState<GlobalAnchor | null>(null);
   const [publishAsGlobal, setPublishAsGlobal] = useState(false);
   const [showNextLectureDialog, setShowNextLectureDialog] = useState(false);
+  const [isMarkdownPreview, setIsMarkdownPreview] = useState(false);
 
   // Use globalAnchors from the lecture object if present, otherwise fallback to []
   const globalAnchors = lecture?.globalAnchors || [];
@@ -796,17 +797,58 @@ export const LectureDetailScreen = (): JSX.Element => {
                 />
               </div>
               <div>
-                <Label htmlFor="description" className="text-white">Description</Label>
-                <Textarea
-                  id="description"
-                  value={newAnchor.description}
-                  onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Write your markdown here..."
-                  rows={4}
-                  className={`font-mono transition-colors duration-200 ${
-                    isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : 'bg-blue-900 text-white placeholder:text-gray-400'
-                  }`}
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="description" className="text-white">Description</Label>
+                  <button
+                    type="button"
+                    onClick={() => setIsMarkdownPreview(!isMarkdownPreview)}
+                    className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${
+                      isMarkdownPreview
+                        ? isDarkMode 
+                          ? 'bg-[#40444b] text-white' 
+                          : 'bg-blue-800 text-white'
+                        : isDarkMode 
+                          ? 'bg-transparent border border-[#4f545c] text-white hover:bg-[#40444b]' 
+                          : 'bg-transparent border border-blue-300 text-white hover:bg-blue-800'
+                    }`}
+                  >
+                    {isMarkdownPreview ? 'Edit' : 'Preview'}
+                  </button>
+                </div>
+                <div className={`border rounded-md transition-colors duration-200 ${
+                  isDarkMode ? 'border-[#4f545c]' : 'border-blue-700'
+                }`}>
+                  {isMarkdownPreview ? (
+                    /* Markdown Preview */
+                    <div className={`p-3 min-h-[144px] overflow-y-auto transition-colors duration-200 ${
+                      isDarkMode ? 'bg-[#40444b]' : 'bg-blue-800'
+                    }`}>
+                      {newAnchor.description ? (
+                        <div className="prose prose-sm max-w-none text-white">
+                          <ReactMarkdown>{newAnchor.description}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className={`text-sm transition-colors duration-200 ${
+                          isDarkMode ? 'text-gray-400' : 'text-gray-300'
+                        }`}>
+                          No content to preview...
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    /* Markdown Editor */
+                    <Textarea
+                      id="description"
+                      value={newAnchor.description}
+                      onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Write your markdown here..."
+                      rows={6}
+                      className={`font-mono border-0 rounded-md resize-none transition-colors duration-200 ${
+                        isDarkMode ? 'bg-[#40444b] text-white placeholder:text-gray-400' : 'bg-blue-900 text-white placeholder:text-gray-400'
+                      }`}
+                    />
+                  )}
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <input
