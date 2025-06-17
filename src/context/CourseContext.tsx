@@ -49,6 +49,16 @@ interface CourseContextType {
 }
 
 const initialCourseData: CourseData = {
+  "Group.26": {
+    title: "IID Exercises",
+    lectures: [
+      { id: "1", title: "SCAMPER", date: "26.03.2025", isFavorited: false, videoId: "CF9jLC2unDk", anchors: [], hasNotification: true },
+      { id: "2", title: "Low-Fi", date: "09.04.2025", isFavorited: false, videoId: "ZXWsHqZl0dM", anchors: [], hasNotification: true },
+      { id: "3", title: "Mid-Fi", date: "20.05.2025", isFavorited: false, videoId: "uzOrrXnX7VM", anchors: [], hasNotification: true },
+      { id: "4", title: "Hi-Fi", date: "12.06.2025", isFavorited: false, videoId: "-hLtZYg1-vE", anchors: [], hasNotification: true },
+    ],
+    isPinned: true
+  },
   "193.127": {
     title: "Interface and Interaction Design",
     lectures: [
