@@ -43,7 +43,7 @@ declare global {
 
 export const LectureDetailScreen = (): JSX.Element => {
   const { courseId, lectureId } = useParams<{ courseId: string; lectureId: string }>();
-  const { courseData } = useCourse();
+  const { courseData, updateLecture } = useCourse();
   const { isDarkMode } = useDarkMode();
   const playerRef = useRef<any>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -77,6 +77,13 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   // Use globalAnchors from the lecture object if present, otherwise fallback to []
   const globalAnchors = lecture?.globalAnchors || [];
+
+  // Set hasNotification to false when lecture is visited
+  useEffect(() => {
+    if (lecture && lecture.hasNotification && courseId && lectureId) {
+      updateLecture(courseId, lectureId, { hasNotification: false });
+    }
+  }, [lecture, courseId, lectureId, updateLecture]);
 
   // Initialize YouTube Player API
   useEffect(() => {
