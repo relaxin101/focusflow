@@ -5,12 +5,14 @@ import { SearchBar } from "../../components/SearchBar/SearchBar";
 import { LectureCard } from "../../components/LectureCard/LectureCard";
 import { NavigationBar } from "../../components/NavigationBar";
 import { useCourse } from "../../context/CourseContext";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 export const LectureOverviewScreen = (): JSX.Element => {
   const { courseId } = useParams<{ courseId: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({ showLive: false, showUnwatched: false });
   const { courseData, toggleLectureFavorite } = useCourse();
+  const { isDarkMode } = useDarkMode();
 
   const course = courseData[courseId || ""];
 
@@ -47,7 +49,9 @@ export const LectureOverviewScreen = (): JSX.Element => {
   }, [course, searchQuery, filters]);
 
   return (
-    <div className="bg-white min-h-screen w-full relative">
+    <div className={`min-h-screen w-full relative transition-colors duration-200 ${
+      isDarkMode ? 'bg-[#36393f]' : 'bg-white'
+    }`}>
       {/* Main content */}
       <main className="w-full h-[calc(100vh-60px)] overflow-y-auto p-4">
         {/* Search */}
@@ -63,19 +67,29 @@ export const LectureOverviewScreen = (): JSX.Element => {
 
         {!course ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-gray-500 text-lg">Course not found</p>
+            <p className={`text-lg transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-500'
+            }`}>Course not found</p>
           </div>
         ) : filteredLectures.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <StarIcon className="w-16 h-16 text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg">No lectures found</p>
-            <p className="text-gray-400 text-sm mt-2">
+            <StarIcon className={`w-16 h-16 mb-4 transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-600' : 'text-gray-300'
+            }`} />
+            <p className={`text-lg transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-500'
+            }`}>No lectures found</p>
+            <p className={`text-sm mt-2 transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-400'
+            }`}>
               {searchQuery ? "Try a different search term" : "No lectures available for this course"}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black mb-4">{course.title} Lectures</h2>
+            <h2 className={`text-lg font-semibold mb-4 transition-colors duration-200 ${
+              isDarkMode ? 'text-white' : 'text-black'
+            }`}>{course.title} Lectures</h2>
             {filteredLectures.map((lecture) => (
               <LectureCard
                 key={lecture.id}

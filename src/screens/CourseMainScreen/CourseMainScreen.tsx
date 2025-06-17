@@ -6,11 +6,13 @@ import { SearchBar } from "../../components/SearchBar/SearchBar";
 import { CourseCard } from "../../components/CourseCard/CourseCard";
 import { NavigationBar } from "../../components/NavigationBar";
 import { useCourse } from "../../context/CourseContext";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 export const CourseMainScreen = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({ showLive: false, showUnwatched: false });
   const { courseData, toggleCoursePin } = useCourse();
+  const { isDarkMode } = useDarkMode();
 
   // Filter and sort courses
   const filteredAndSortedCourses = useMemo(() => {
@@ -51,7 +53,9 @@ export const CourseMainScreen = (): JSX.Element => {
   }, [courseData, searchQuery, filters]);
 
   return (
-    <div className="bg-white min-h-screen w-full relative">
+    <div className={`min-h-screen w-full relative transition-colors duration-200 ${
+      isDarkMode ? 'bg-[#36393f]' : 'bg-white'
+    }`}>
       {/* Main content */}
       <main className="w-full h-[calc(100vh-60px)] overflow-y-auto p-4">
         {/* Search */}
@@ -67,9 +71,15 @@ export const CourseMainScreen = (): JSX.Element => {
 
         {filteredAndSortedCourses.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <StarIcon className="w-16 h-16 text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg">No courses found</p>
-            <p className="text-gray-400 text-sm mt-2">
+            <StarIcon className={`w-16 h-16 mb-4 transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-600' : 'text-gray-300'
+            }`} />
+            <p className={`text-lg transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-500'
+            }`}>No courses found</p>
+            <p className={`text-sm mt-2 transition-colors duration-200 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-400'
+            }`}>
               {searchQuery ? "Try a different search term" : "Add courses to see them here"}
             </p>
           </div>

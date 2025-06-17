@@ -6,6 +6,7 @@ import { LectureDetailScreen } from "./screens/LectureDetailScreen/LectureDetail
 import { FavoritesScreen } from "./screens/FavoritesScreen/FavoritesScreen";
 import { ProfileScreen } from "./screens/ProfileScreen/ProfileScreen";
 import { CourseProvider } from "./context/CourseContext";
+import { DarkModeProvider } from "./context/DarkModeContext";
 import { AdminScreen } from "./screens/AdminScreen/AdminScreen";
 
 const router = createBrowserRouter([
@@ -37,8 +38,10 @@ const router = createBrowserRouter([
 
 export const App = () => {
   return (
-    <CourseProvider>
-      <RouterProvider router={router} />
-    </CourseProvider>
+    <DarkModeProvider>
+      <CourseProvider>
+        <RouterProvider router={router} />
+      </CourseProvider>
+    </DarkModeProvider>
   );
 };

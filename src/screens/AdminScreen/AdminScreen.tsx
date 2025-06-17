@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useCourse } from "../../context/CourseContext";
 import type { GlobalAnchor } from '../../context/CourseContext';
 import { NavigationBar } from "../../components/NavigationBar";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 // Function to extract YouTube video ID from URL
 const extractVideoId = (url: string): string => {
@@ -33,6 +34,7 @@ export const AdminScreen = () => {
     updateLecture,
     deleteLecture
   } = useCourse();
+  const { isDarkMode } = useDarkMode();
 
   const [newCourseId, setNewCourseId] = useState("");
   const [newCourseTitle, setNewCourseTitle] = useState("");
@@ -116,36 +118,50 @@ export const AdminScreen = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen w-full relative p-4">
+    <div className={`min-h-screen w-full relative p-4 transition-colors duration-200 ${
+      isDarkMode ? 'bg-[#36393f]' : 'bg-white'
+    }`}>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Admin Panel</h1>
+        <h1 className={`text-2xl font-bold transition-colors duration-200 ${
+          isDarkMode ? 'text-white' : 'text-black'
+        }`}>Admin Panel</h1>
         <Link to="/profile">
           <Button variant="ghost">Back to Profile</Button>
         </Link>
       </div>
-      <Card className="mb-6">
+      <Card className={`mb-6 transition-colors duration-200 ${
+        isDarkMode ? 'border-[#4f545c] bg-[#2f3136]' : 'border-gray-200 bg-white'
+      }`}>
         <CardContent className="p-4">
-          <h2 className="text-lg font-semibold mb-2">Create Course</h2>
+          <h2 className={`text-lg font-semibold mb-2 transition-colors duration-200 ${
+            isDarkMode ? 'text-white' : 'text-black'
+          }`}>Create Course</h2>
           <div className="flex gap-2 mb-2">
             <Input
               placeholder="Course ID"
               value={newCourseId}
               onChange={(e) => setNewCourseId(e.target.value)}
+              className={isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}
             />
             <Input
               placeholder="Course Title"
               value={newCourseTitle}
               onChange={(e) => setNewCourseTitle(e.target.value)}
+              className={isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}
             />
             <Button onClick={handleAddCourse}>Add</Button>
           </div>
-          <Separator />
-          <h3 className="mt-4 mb-2 font-medium">Courses</h3>
+          <Separator className={isDarkMode ? 'bg-[#4f545c]' : 'bg-gray-200'} />
+          <h3 className={`mt-4 mb-2 font-medium transition-colors duration-200 ${
+            isDarkMode ? 'text-white' : 'text-black'
+          }`}>Courses</h3>
           <ul>
             {Object.entries(courseData).map(([id, course]) => (
               <li key={id} className="flex items-center justify-between mb-2">
                 <span
-                  className={`cursor-pointer ${selectedCourseId === id ? "font-bold" : ""}`}
+                  className={`cursor-pointer transition-colors duration-200 ${
+                    selectedCourseId === id ? "font-bold" : ""
+                  } ${isDarkMode ? 'text-white' : 'text-black'}`}
                   onClick={() => setSelectedCourseId(id)}
                 >
                   {id} - {course.title}
@@ -159,30 +175,39 @@ export const AdminScreen = () => {
         </CardContent>
       </Card>
       {selectedCourseId && courseData[selectedCourseId] && (
-        <Card>
+        <Card className={`transition-colors duration-200 ${
+          isDarkMode ? 'border-[#4f545c] bg-[#2f3136]' : 'border-gray-200 bg-white'
+        }`}>
           <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Manage Lectures</h2>
+            <h2 className={`text-lg font-semibold mb-2 transition-colors duration-200 ${
+              isDarkMode ? 'text-white' : 'text-black'
+            }`}>Manage Lectures</h2>
             <div className="flex gap-2 mb-2">
               <Input
                 placeholder="Lecture Title"
                 value={newLectureTitle}
                 onChange={(e) => setNewLectureTitle(e.target.value)}
+                className={isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}
               />
               <Input
                 placeholder="Date"
                 value={newLectureDate}
                 onChange={(e) => setNewLectureDate(e.target.value)}
                 type="date"
+                className={isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}
               />
               <Input
                 placeholder="YouTube Video ID or URL"
                 value={newLectureVideoId}
                 onChange={(e) => setNewLectureVideoId(e.target.value)}
+                className={isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}
               />
               <Button onClick={handleAddLecture}>Add</Button>
             </div>
-            <Separator />
-            <h3 className="mt-4 mb-2 font-medium">Lectures</h3>
+            <Separator className={isDarkMode ? 'bg-[#4f545c]' : 'bg-gray-200'} />
+            <h3 className={`mt-4 mb-2 font-medium transition-colors duration-200 ${
+              isDarkMode ? 'text-white' : 'text-black'
+            }`}>Lectures</h3>
             <ul>
               {courseData[selectedCourseId].lectures
                 .sort((a, b) => {
@@ -194,7 +219,9 @@ export const AdminScreen = () => {
                 })
                 .map((lecture) => (
                 <li key={lecture.id} className="flex items-center justify-between mb-2">
-                  <span>{lecture.title} ({lecture.date})</span>
+                  <span className={`transition-colors duration-200 ${
+                    isDarkMode ? 'text-white' : 'text-black'
+                  }`}>{lecture.title} ({lecture.date})</span>
                   <div className="flex gap-2">
                     <Button variant="secondary" size="sm" onClick={() => setSelectedLectureId(lecture.id)}>
                       Add Global Anchor
@@ -211,32 +238,38 @@ export const AdminScreen = () => {
       )}
       {/* Global Anchor Creation UI */}
       {selectedLectureId && (
-        <div className="mt-4 p-4 border rounded bg-gray-50">
-          <h4 className="font-semibold mb-2">Add Global Anchor</h4>
+        <div className={`mt-4 p-4 border rounded transition-colors duration-200 ${
+          isDarkMode ? 'border-[#4f545c] bg-[#2f3136]' : 'border-gray-200 bg-gray-50'
+        }`}>
+          <h4 className={`font-semibold mb-2 transition-colors duration-200 ${
+            isDarkMode ? 'text-white' : 'text-black'
+          }`}>Add Global Anchor</h4>
           <Input
             placeholder="Title"
             value={globalAnchorTitle}
             onChange={e => setGlobalAnchorTitle(e.target.value)}
-            className="mb-2"
+            className={`mb-2 ${isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}`}
           />
           <Input
             placeholder="Timestamp (hh:mm:ss or mm:ss)"
             value={globalAnchorTimestamp}
             onChange={e => setGlobalAnchorTimestamp(e.target.value)}
-            className="mb-2"
+            className={`mb-2 ${isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}`}
           />
           <textarea
             placeholder="Description"
             value={globalAnchorDescription}
             onChange={e => setGlobalAnchorDescription(e.target.value)}
-            className="mb-2 w-full border rounded p-2"
+            className={`mb-2 w-full border rounded p-2 transition-colors duration-200 ${
+              isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''
+            }`}
             rows={3}
           />
           <Input
             placeholder="Author"
             value={globalAnchorAuthor}
             onChange={e => setGlobalAnchorAuthor(e.target.value)}
-            className="mb-2"
+            className={`mb-2 ${isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : ''}`}
           />
           <Button onClick={handleAddGlobalAnchor}>Add Global Anchor</Button>
         </div>

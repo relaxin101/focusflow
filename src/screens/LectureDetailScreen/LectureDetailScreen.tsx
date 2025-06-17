@@ -9,6 +9,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { NavigationBar } from "../../components/NavigationBar";
 import ReactMarkdown from 'react-markdown';
 import { useCourse } from "../../context/CourseContext";
+import { useDarkMode } from "../../context/DarkModeContext";
 import type { GlobalAnchor } from '../../context/CourseContext';
 
 interface Anchor {
@@ -43,6 +44,7 @@ declare global {
 export const LectureDetailScreen = (): JSX.Element => {
   const { courseId, lectureId } = useParams<{ courseId: string; lectureId: string }>();
   const { courseData } = useCourse();
+  const { isDarkMode } = useDarkMode();
   const playerRef = useRef<any>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -460,9 +462,13 @@ export const LectureDetailScreen = (): JSX.Element => {
 
   if (!lecture) {
     return (
-      <div className="bg-white min-h-screen w-full relative">
+      <div className={`min-h-screen w-full relative transition-colors duration-200 ${
+        isDarkMode ? 'bg-[#36393f]' : 'bg-white'
+      }`}>
         <div className="flex items-center justify-center h-screen">
-          <p>Lecture not found</p>
+          <p className={`transition-colors duration-200 ${
+            isDarkMode ? 'text-white' : 'text-black'
+          }`}>Lecture not found</p>
         </div>
       </div>
     );
@@ -472,7 +478,9 @@ export const LectureDetailScreen = (): JSX.Element => {
   const timelineAnchors = showGlobalAnchors ? globalAnchors : anchors;
 
   return (
-    <div className="bg-[#8bb3e0] min-h-screen w-full relative">
+    <div className={`min-h-screen w-full relative transition-colors duration-200 ${
+      isDarkMode ? 'bg-[#36393f]' : 'bg-[#8bb3e0]'
+    }`}>
       {/* YouTube Video or Transcript */}
       <div className="w-full h-[33vh] bg-black relative">
         <div id="youtube-player" className="w-full h-full"></div>
@@ -488,41 +496,71 @@ export const LectureDetailScreen = (): JSX.Element => {
 
       {/* Title */}
       <div className="px-4 pt-4 pb-2">
-        <h1 className="text-lg font-medium text-black">
+        <h1 className={`text-lg font-medium transition-colors duration-200 ${
+          isDarkMode ? 'text-white' : 'text-black'
+        }`}>
           {lecture.title} / {lecture.date}
         </h1>
       </div>
 
       {/* Timeline & Controls */}
-      <div className="w-full h-[calc(100vh-33vh-150px)] flex flex-col bg-[#8bb3e0]">
+      <div className={`w-full h-[calc(100vh-33vh-150px)] flex flex-col transition-colors duration-200 ${
+        isDarkMode ? 'bg-[#36393f]' : 'bg-[#8bb3e0]'
+      }`}>
         {/* Toggles */}
         <div className="flex flex-row items-center justify-between px-4 pt-2 pb-2">
           <div className="flex items-center gap-3">
             {/* Global Anchors Toggle */}
             <button
-              className={`flex items-center px-2 py-1 rounded-full border ${showGlobalAnchors ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
+              className={`flex items-center px-2 py-1 rounded-full border transition-colors duration-200 ${
+                showGlobalAnchors 
+                  ? isDarkMode 
+                    ? 'bg-[#40444b] border-blue-500' 
+                    : 'bg-white border-blue-500' 
+                  : isDarkMode 
+                    ? 'bg-[#2f3136] border-[#4f545c]' 
+                    : 'bg-[#8bb3e0] border-gray-400'
+              }`}
               onClick={handleGlobalAnchorsToggle}
             >
               <span className="mr-2 inline-block w-5 h-5 text-blue-700">🌐</span>
-              <span className="text-sm font-medium text-black">global anchors</span>
-              <span className={`ml-2 w-5 h-5 rounded-full border-2 ${showGlobalAnchors ? 'bg-blue-500 border-blue-500' : 'bg-gray-200 border-gray-400'}`}></span>
+              <span className={`text-sm font-medium transition-colors duration-200 ${
+                isDarkMode ? 'text-white' : 'text-black'
+              }`}>global anchors</span>
+              <span className={`ml-2 w-5 h-5 rounded-full border-2 transition-colors duration-200 ${
+                showGlobalAnchors ? 'bg-blue-500 border-blue-500' : isDarkMode ? 'bg-[#4f545c] border-[#4f545c]' : 'bg-gray-200 border-gray-400'
+              }`}></span>
             </button>
             {/* Transcript Toggle */}
             <button
-              className={`flex items-center px-2 py-1 rounded-full border ${showTranscript ? 'bg-white border-blue-500' : 'bg-[#8bb3e0] border-gray-400'} transition`}
+              className={`flex items-center px-2 py-1 rounded-full border transition-colors duration-200 ${
+                showTranscript 
+                  ? isDarkMode 
+                    ? 'bg-[#40444b] border-blue-500' 
+                    : 'bg-white border-blue-500' 
+                  : isDarkMode 
+                    ? 'bg-[#2f3136] border-[#4f545c]' 
+                    : 'bg-[#8bb3e0] border-gray-400'
+              }`}
               onClick={handleTranscriptToggle}
             >
               <span className="mr-2 inline-block w-5 h-5 text-blue-700">📝</span>
-              <span className="text-sm font-medium text-black">transcript</span>
+              <span className={`text-sm font-medium transition-colors duration-200 ${
+                isDarkMode ? 'text-white' : 'text-black'
+              }`}>transcript</span>
             </button>
           </div>
           {/* Add Anchor Button */}
           {!showGlobalAnchors && (
             <button
-              className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-black bg-transparent hover:bg-white/10 transition"
+              className={`flex items-center justify-center w-8 h-8 rounded-full border-2 bg-transparent hover:bg-white/10 transition-colors duration-200 ${
+                isDarkMode ? 'border-white hover:bg-[#40444b]' : 'border-black'
+              }`}
               onClick={handleAddAnchor}
             >
-              <PlusIcon className="w-4 h-4 text-black" />
+              <PlusIcon className={`w-4 h-4 transition-colors duration-200 ${
+                isDarkMode ? 'text-white' : 'text-black'
+              }`} />
             </button>
           )}
         </div>
@@ -543,7 +581,7 @@ export const LectureDetailScreen = (): JSX.Element => {
           <div className="relative z-10" style={{ height: '100%' }}>
             {(() => {
               // Group anchors by their position (with a small threshold for overlap)
-              const groupedAnchors = timelineAnchors.reduce((groups: { position: number; anchors: (Anchor & { position: number })[] }[], anchor: Anchor) => {
+              const groupedAnchors = timelineAnchors.reduce((groups: { position: number; anchors: (Anchor | GlobalAnchor & { position: number })[] }[], anchor: Anchor | GlobalAnchor) => {
                 // Add offset to prevent anchors at 0:00 from being cut off
                 const position = Math.max(4, (anchor.timestampSeconds / duration) * 100);
                 const existingGroup = groups.find((group) =>
@@ -557,7 +595,7 @@ export const LectureDetailScreen = (): JSX.Element => {
                 return groups;
               }, []);
 
-              return groupedAnchors.map((group: { position: number; anchors: (Anchor & { position: number })[] }, groupIndex: number) => (
+              return groupedAnchors.map((group: { position: number; anchors: (Anchor | GlobalAnchor & { position: number })[] }, groupIndex: number) => (
                 <div
                   key={groupIndex}
                   className="absolute left-0 right-0"
@@ -569,7 +607,7 @@ export const LectureDetailScreen = (): JSX.Element => {
                   <div className="flex items-center gap-4">
                     {/* Timeline node */}
                     <div className="flex flex-col items-center">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors duration-200 ${
                         showGlobalAnchors ? 'border-blue-700 bg-white' : 'border-blue-400 bg-white'
                       } group-hover:bg-blue-100 transition ${
                         currentTime >= group.anchors[0].timestampSeconds ? 'border-blue-600' : ''
@@ -581,32 +619,42 @@ export const LectureDetailScreen = (): JSX.Element => {
                     </div>
                     {/* Anchor cards */}
                     <div className="flex gap-2 overflow-x-auto">
-                      {group.anchors.map((anchor: Anchor & { position: number }) => (
+                      {group.anchors.map((anchor: Anchor | GlobalAnchor & { position: number }) => (
                         <div
                           key={anchor.id}
-                          className={`flex-shrink-0 bg-white rounded-lg px-3 py-1.5 shadow-sm border border-blue-100 hover:bg-blue-50 transition cursor-pointer ${
+                          className={`flex-shrink-0 rounded-lg px-3 py-1.5 shadow-sm border transition-colors duration-200 cursor-pointer ${
+                            isDarkMode 
+                              ? 'bg-[#2f3136] border-[#4f545c] hover:bg-[#40444b]' 
+                              : 'bg-white border-blue-100 hover:bg-blue-50'
+                          } ${
                             currentTime >= anchor.timestampSeconds ? 'border-blue-400' : ''
                           }`}
                           onClick={() => {
                             if (showGlobalAnchors) {
                               setSelectedGlobalAnchor(anchor as GlobalAnchor);
                             } else {
-                              setSelectedAnchor(anchor);
+                              setSelectedAnchor(anchor as Anchor);
                             }
                           }}
                         >
                           <div className="flex items-center">
-                            <span className="font-medium text-sm text-blue-900 truncate max-w-[150px]">
+                            <span className={`font-medium text-sm truncate max-w-[150px] transition-colors duration-200 ${
+                              isDarkMode ? 'text-white' : 'text-blue-900'
+                            }`}>
                               {anchor.title}
                             </span>
                             {group.anchors.length === 1 && (
-                              <span className="text-xs text-blue-600 font-mono whitespace-nowrap ml-2">
+                              <span className={`text-xs font-mono whitespace-nowrap ml-2 transition-colors duration-200 ${
+                                isDarkMode ? 'text-blue-400' : 'text-blue-600'
+                              }`}>
                                 {anchor.timestamp}
                               </span>
                             )}
                             {/* Show author for global anchors */}
-                            {showGlobalAnchors && (anchor as GlobalAnchor).author && (
-                              <span className="ml-2 text-xs text-gray-500">by {(anchor as GlobalAnchor).author}</span>
+                            {showGlobalAnchors && 'author' in anchor && anchor.author && (
+                              <span className={`ml-2 text-xs transition-colors duration-200 ${
+                                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                              }`}>by {anchor.author}</span>
                             )}
                           </div>
                         </div>
@@ -623,14 +671,18 @@ export const LectureDetailScreen = (): JSX.Element => {
       {/* Add Anchor Dialog */}
       {!showGlobalAnchors && (
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="max-w-[800px] w-full max-h-[800px] mx-auto bg-blue-900 text-white rounded-xl p-4">
+          <DialogContent className={`max-w-[800px] w-full max-h-[800px] mx-auto rounded-xl p-4 transition-colors duration-200 ${
+            isDarkMode ? 'bg-[#2f3136] text-white' : 'bg-blue-900 text-white'
+          }`}>
             <DialogHeader>
               <DialogTitle>Add New Anchor</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label className="text-white">Timestamp</Label>
-                <div className="flex items-center bg-blue-900 rounded-md p-2 justify-start space-x-1">
+                <div className={`flex items-center rounded-md p-2 justify-start space-x-1 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-[#40444b]' : 'bg-blue-900'
+                }`}>
                   {duration >= 3600 && (
                     <div className="flex items-center">
                       <Input
@@ -642,7 +694,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                         onChange={(e) => handleTimeInputChange(e.target.value, 'hours')}
                         onBlur={() => handleTimeInputBlur('hours')}
                         onKeyDown={(e) => handleTimeInputKeyDown(e, 'hours')}
-                        className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0 text-center"
+                        className={`w-12 text-xs px-1 py-0.5 text-white focus:outline-none focus:ring-0 text-center transition-colors duration-200 ${
+                          isDarkMode ? 'bg-[#40444b] border-[#4f545c]' : 'bg-blue-900'
+                        }`}
                       />
                       <Label htmlFor="hours" className="text-xs text-white ml-1 mr-2">h</Label>
                     </div>
@@ -657,7 +711,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                       onChange={(e) => handleTimeInputChange(e.target.value, 'minutes')}
                       onBlur={() => handleTimeInputBlur('minutes')}
                       onKeyDown={(e) => handleTimeInputKeyDown(e, 'minutes')}
-                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0 text-center"
+                      className={`w-12 text-xs px-1 py-0.5 text-white focus:outline-none focus:ring-0 text-center transition-colors duration-200 ${
+                        isDarkMode ? 'bg-[#40444b] border-[#4f545c]' : 'bg-blue-900'
+                      }`}
                     />
                     <Label htmlFor="minutes" className="text-xs text-white ml-1 mr-2">min</Label>
                   </div>
@@ -671,7 +727,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                       onChange={(e) => handleTimeInputChange(e.target.value, 'seconds')}
                       onBlur={() => handleTimeInputBlur('seconds')}
                       onKeyDown={(e) => handleTimeInputKeyDown(e, 'seconds')}
-                      className="w-12 text-xs px-1 py-0.5 bg-blue-900 text-white focus:outline-none focus:ring-0 text-center"
+                      className={`w-12 text-xs px-1 py-0.5 text-white focus:outline-none focus:ring-0 text-center transition-colors duration-200 ${
+                        isDarkMode ? 'bg-[#40444b] border-[#4f545c]' : 'bg-blue-900'
+                      }`}
                     />
                     <Label htmlFor="seconds" className="text-xs text-white ml-1 mr-2">s</Label>
                   </div>
@@ -689,7 +747,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                         }));
                       }
                     }}
-                    className="ml-4 px-2 py-1 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded transition-colors"
+                    className={`ml-4 px-2 py-1 text-xs text-white rounded transition-colors ${
+                      isDarkMode ? 'bg-[#40444b] hover:bg-[#4f545c]' : 'bg-blue-700 hover:bg-blue-600'
+                    }`}
                   >
                     Use Current Time
                   </button>
@@ -702,7 +762,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                   value={newAnchor.title}
                   onChange={(e) => setNewAnchor(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter anchor title"
-                  className="bg-blue-900 text-white placeholder:text-gray-400"
+                  className={`transition-colors duration-200 ${
+                    isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : 'bg-blue-900 text-white placeholder:text-gray-400'
+                  }`}
                 />
               </div>
               <div>
@@ -713,7 +775,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                   onChange={(e) => setNewAnchor(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Write your markdown here..."
                   rows={4}
-                  className="font-mono bg-blue-900 text-white placeholder:text-gray-400"
+                  className={`font-mono transition-colors duration-200 ${
+                    isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white placeholder:text-gray-400' : 'bg-blue-900 text-white placeholder:text-gray-400'
+                  }`}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -742,9 +806,13 @@ export const LectureDetailScreen = (): JSX.Element => {
       {/* Anchor Details Modal Overlay */}
       {selectedAnchor && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-lg w-[90vw] max-w-md p-6 relative flex flex-col">
+          <div className={`rounded-xl shadow-lg w-[90vw] max-w-md p-6 relative flex flex-col transition-colors duration-200 ${
+            isDarkMode ? 'bg-[#2f3136] text-white' : 'bg-white text-black'
+          }`}>
             <button
-              className="absolute top-2 right-2 text-2xl text-gray-400 hover:text-black"
+              className={`absolute top-2 right-2 text-2xl hover:text-black transition-colors duration-200 ${
+                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-black'
+              }`}
               onClick={() => {
                 setSelectedAnchor(null);
                 setIsEditing(false);
@@ -761,7 +829,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                     playerRef.current.playVideo();
                   }
                 }}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-1 rounded-full transition-colors ${
+                  isDarkMode ? 'hover:bg-[#40444b]' : 'hover:bg-gray-100'
+                }`}
               >
                 <PlayIcon className="w-5 h-5 text-blue-600" />
               </button>
@@ -775,7 +845,9 @@ export const LectureDetailScreen = (): JSX.Element => {
                       description: selectedAnchor.description
                     });
                   }}
-                  className="ml-2 p-1 hover:bg-gray-100 rounded-full"
+                  className={`ml-2 p-1 rounded-full transition-colors ${
+                    isDarkMode ? 'hover:bg-[#40444b]' : 'hover:bg-gray-100'
+                  }`}
                 >
                   <PenIcon className="w-4 h-4 text-blue-600" />
                 </button>
@@ -786,12 +858,16 @@ export const LectureDetailScreen = (): JSX.Element => {
                 <Input
                   value={editedAnchor.title}
                   onChange={(e) => setEditedAnchor(prev => ({ ...prev, title: e.target.value }))}
-                  className="mb-2"
+                  className={`mb-2 transition-colors duration-200 ${
+                    isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white' : ''
+                  }`}
                 />
                 <Textarea
                   value={editedAnchor.description}
                   onChange={(e) => setEditedAnchor(prev => ({ ...prev, description: e.target.value }))}
-                  className="mb-4 font-mono"
+                  className={`mb-4 font-mono transition-colors duration-200 ${
+                    isDarkMode ? 'bg-[#40444b] border-[#4f545c] text-white' : ''
+                  }`}
                   rows={6}
                   placeholder="Write your markdown here..."
                 />
@@ -806,7 +882,9 @@ export const LectureDetailScreen = (): JSX.Element => {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold mb-2 text-black">{selectedAnchor.title}</h2>
+                <h2 className={`text-xl font-bold mb-2 transition-colors duration-200 ${
+                  isDarkMode ? 'text-white' : 'text-black'
+                }`}>{selectedAnchor.title}</h2>
                 <div className="prose prose-sm max-w-none mb-4">
                   <ReactMarkdown>{selectedAnchor.description}</ReactMarkdown>
                 </div>
@@ -829,9 +907,13 @@ export const LectureDetailScreen = (): JSX.Element => {
       {/* Global Anchor Modal */}
       {selectedGlobalAnchor && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-lg w-[90vw] max-w-md p-6 relative flex flex-col">
+          <div className={`rounded-xl shadow-lg w-[90vw] max-w-md p-6 relative flex flex-col transition-colors duration-200 ${
+            isDarkMode ? 'bg-[#2f3136] text-white' : 'bg-white text-black'
+          }`}>
             <button
-              className="absolute top-2 right-2 text-2xl text-gray-400 hover:text-black"
+              className={`absolute top-2 right-2 text-2xl hover:text-black transition-colors duration-200 ${
+                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-black'
+              }`}
               onClick={() => setSelectedGlobalAnchor(null)}
               aria-label="Close"
             >
@@ -845,14 +927,20 @@ export const LectureDetailScreen = (): JSX.Element => {
                     playerRef.current.playVideo();
                   }
                 }}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-1 rounded-full transition-colors ${
+                  isDarkMode ? 'hover:bg-[#40444b]' : 'hover:bg-gray-100'
+                }`}
               >
                 <PlayIcon className="w-5 h-5 text-blue-600" />
               </button>
               <span className="text-base font-semibold text-blue-600">{selectedGlobalAnchor.timestamp}</span>
-              <span className="text-xs text-gray-500">by {selectedGlobalAnchor.author}</span>
+              <span className={`text-xs transition-colors duration-200 ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>by {selectedGlobalAnchor.author}</span>
             </div>
-            <h2 className="text-xl font-bold mb-2 text-black">{selectedGlobalAnchor.title}</h2>
+            <h2 className={`text-xl font-bold mb-2 transition-colors duration-200 ${
+              isDarkMode ? 'text-white' : 'text-black'
+            }`}>{selectedGlobalAnchor.title}</h2>
             <div className="prose prose-sm max-w-none mb-4">
               <ReactMarkdown>{selectedGlobalAnchor.description}</ReactMarkdown>
             </div>
