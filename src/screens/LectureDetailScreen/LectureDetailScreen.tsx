@@ -108,6 +108,7 @@ export const LectureDetailScreen = (): JSX.Element => {
     let scriptTag: HTMLScriptElement | null = null;
     let currentTime = 0;
     let isPlaying = false;
+    let isInitializing = false;
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -128,57 +129,76 @@ export const LectureDetailScreen = (): JSX.Element => {
     };
 
     const initializePlayer = () => {
+      if (isInitializing) return;
+      isInitializing = true;
+
       // Reset player state
       setIsPlayerReady(false);
       setCurrentTime(0);
       setDuration(0);
       setIsPlaying(false);
 
+      // Destroy existing player first
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy();
+        } catch (error) {
+          console.warn('Error destroying existing player:', error);
+        }
+        playerRef.current = null;
+      }
+
       // Clear the player container
-      const playerContainer = document.getElementById('youtube-player');
+      const playerContainer = document.getElementById(`youtube-player-${lecture?.id || 'default'}`);
       if (playerContainer) {
         playerContainer.innerHTML = '';
       }
 
       // Create new player
       if (window.YT && window.YT.Player && lecture?.videoId) {
-        playerRef.current = new window.YT.Player('youtube-player', {
-          videoId: lecture.videoId,
-          height: '100%',
-          width: '100%',
-          playerVars: {
-            'playsinline': 1,
-            'controls': 1,
-            'cc_load_policy': 1,
-            'cc_lang_pref': 'en',
-            'enablejsapi': 1,
-            'origin': window.location.origin
-          },
-          events: {
-            'onReady': () => {
-              setIsPlayerReady(true);
-              if (playerRef.current) {
-                setDuration(playerRef.current.getDuration());
-              }
+        try {
+          playerRef.current = new window.YT.Player(`youtube-player-${lecture.id}`, {
+            videoId: lecture.videoId,
+            height: '100%',
+            width: '100%',
+            playerVars: {
+              'playsinline': 1,
+              'controls': 1,
+              'cc_load_policy': 1,
+              'cc_lang_pref': 'en',
+              'enablejsapi': 1,
+              'origin': window.location.origin
             },
-            'onStateChange': (event: any) => {
-              setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
-              // Check if video has ended
-              if (event.data === window.YT.PlayerState.ENDED) {
-                setShowNextLectureDialog(true);
-              }
-            },
-            'onError': () => {
-              // Attempt to reload the player on error
-              if (playerRef.current) {
-                playerRef.current.destroy();
-                setTimeout(() => {
-                  initializePlayer();
-                }, 1000);
+            events: {
+              'onReady': () => {
+                setIsPlayerReady(true);
+                isInitializing = false;
+                if (playerRef.current) {
+                  setDuration(playerRef.current.getDuration());
+                }
+              },
+              'onStateChange': (event: any) => {
+                setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
+                // Check if video has ended
+                if (event.data === window.YT.PlayerState.ENDED) {
+                  setShowNextLectureDialog(true);
+                }
+              },
+              'onError': (event: any) => {
+                console.error('YouTube player error:', event.data);
+                isInitializing = false;
+                // Don't retry on error to avoid infinite loops
+                setIsPlayerReady(false);
               }
             }
-          }
-        });
+          });
+        } catch (error) {
+          console.error('Error creating YouTube player:', error);
+          isInitializing = false;
+          setIsPlayerReady(false);
+        }
+      } else {
+        isInitializing = false;
       }
     };
 
@@ -235,6 +255,7 @@ export const LectureDetailScreen = (): JSX.Element => {
       setCurrentTime(0);
       setDuration(0);
       setIsPlaying(false);
+      isInitializing = false;
 
       // Remove the script tag if we added it
       if (scriptTag && scriptTag.parentNode) {
@@ -246,7 +267,7 @@ export const LectureDetailScreen = (): JSX.Element => {
         window.onYouTubeIframeAPIReady = () => {};
       }
     };
-  }, [lecture?.videoId]);
+  }, [lecture?.videoId, lecture?.id]);
 
   // Cleanup effect for component unmount
   useEffect(() => {
@@ -602,7 +623,7 @@ export const LectureDetailScreen = (): JSX.Element => {
       {/* YouTube Video or Transcript */}
       <div className="w-full h-[33vh] bg-black relative">
         {lecture?.videoId ? (
-          <div id="youtube-player" key={lecture.videoId} className="w-full h-full"></div>
+          <div id={`youtube-player-${lecture.id}`} className="w-full h-full"></div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white">
             <p>No video available for this lecture</p>
