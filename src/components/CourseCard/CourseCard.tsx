@@ -68,16 +68,16 @@ export const CourseCard: React.FC<CourseCardProps> = ({
 
         {/* Course title */}
         <div className="flex justify-between items-center mt-2 px-6">
-          <h2 className={`[font-family:'Inter',Helvetica] font-normal text-xl tracking-[0] leading-5 transition-colors duration-200 ${
+          <h2 className={`[font-family:'Inter',Helvetica] font-normal text-xl tracking-[0] leading-5 transition-colors duration-200 flex-1 mr-4 ${
             isDarkMode ? 'text-white' : 'text-black'
           }`}>
-            {id}&nbsp;&nbsp;{title}
+            {id} - {title}
           </h2>
 
           {/* Clickable pin icon */}
           <Button
             variant="ghost"
-            className="p-0 h-auto w-auto hover:bg-transparent"
+            className="p-0 h-auto w-auto hover:bg-transparent flex-shrink-0"
             onClick={onTogglePin}
           >
             {isPinned ? (

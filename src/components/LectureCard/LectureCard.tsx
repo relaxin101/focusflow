@@ -35,7 +35,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({
   const { isDarkMode } = useDarkMode();
 
   return (
-    <Card className={`w-[372px] h-[198px] mx-auto border-none shadow-none transition-colors duration-200 ${
+    <Card className={`w-[372px] mx-auto border-none shadow-none transition-colors duration-200 ${
       isDarkMode ? 'bg-transparent' : 'bg-white'
     }`}>
       <CardContent className="p-0">
@@ -90,11 +90,11 @@ export const LectureCard: React.FC<LectureCardProps> = ({
         </Link>
         
         {/* Lecture info */}
-        <div className="flex justify-start items-center mt-2 px-6">
-          <h2 className={`[font-family:'Inter',Helvetica] font-normal text-xl tracking-[0] leading-5 max-w-[300px] break-words transition-colors duration-200 ${
+        <div className="flex justify-between items-start mt-2 px-6 space-x-2">
+          <h2 className={`[font-family:'Inter',Helvetica] font-normal text-xl tracking-[0] leading-tight break-words transition-colors duration-200 ${
             isDarkMode ? 'text-white' : 'text-black'
           }`}>
-            {courseId}&nbsp;&nbsp;{title} / {date}
+            {courseId} - {title} / {date}
           </h2>
           
           {/* Star toggle button */}
