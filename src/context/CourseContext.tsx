@@ -56,7 +56,7 @@ const initialCourseData: CourseData = {
         "id": "1",
         "title": "SCAMPER",
         "date": "26.03.2025",
-        "isFavorited": false,
+        "isFavorited": true,
         "videoId": "CF9jLC2unDk",
         "anchors": [],
         "hasNotification": false,
@@ -133,7 +133,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:12:30",
             "timestampSeconds": 750,
             "description": "This is the first algorithm presented, used to illustrate different approaches to problem-solving (e.g., 1D vs. 2D versions).",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 15,
             "dislikes": 0
           },
@@ -143,7 +143,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:18:45",
             "timestampSeconds": 1125,
             "description": "**Binary search approach** for finding peaks in 1D arrays. Time complexity: `O(log n)`",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 28,
             "dislikes": 2
           },
@@ -153,7 +153,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:32:10",
             "timestampSeconds": 1930,
             "description": "Extending peak finding to 2D arrays. More complex than 1D version but still uses divide-and-conquer.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 22,
             "dislikes": 1
           },
@@ -163,7 +163,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:45:20",
             "timestampSeconds": 2720,
             "description": "Detailed analysis of time complexity and correctness proofs for peak finding algorithms.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 19,
             "dislikes": 3
           },
@@ -173,7 +173,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:52:15",
             "timestampSeconds": 3135,
             "description": "Examples of where peak finding is used in practice: image processing, signal analysis, and optimization problems.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 31,
             "dislikes": 0
           }
@@ -216,7 +216,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:25:00",
             "timestampSeconds": 1500,
             "description": "Explanation of how dynamic arrays work, including resizing strategy. Key takeaway: doubling the size leads to *O(1) amortized* time per insertion.\n\n`Cost = 1 + 1 + ... + 1 + k` (for k-th insertion that triggers resize)",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 20,
             "dislikes": 0
           },
@@ -226,7 +226,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:35:10",
             "timestampSeconds": 2110,
             "description": "**Aggregate method** for analyzing amortized cost. Total cost divided by number of operations.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 25,
             "dislikes": 1
           },
@@ -236,7 +236,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:42:30",
             "timestampSeconds": 2550,
             "description": "Different strategies for resizing arrays: doubling vs. additive growth. Trade-offs between space and time efficiency.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 18,
             "dislikes": 2
           },
@@ -246,7 +246,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:48:15",
             "timestampSeconds": 2895,
             "description": "How dynamic arrays handle memory allocation and deallocation. Important for understanding performance characteristics.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 16,
             "dislikes": 1
           },
@@ -256,7 +256,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:55:20",
             "timestampSeconds": 3320,
             "description": "Code examples and implementation considerations for dynamic arrays in different programming languages.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 23,
             "dislikes": 0
           }
@@ -299,7 +299,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:15:00",
             "timestampSeconds": 900,
             "description": "### Merge Sort Algorithm\nAn efficient, comparison-based, stable sorting algorithm.\n\n**Time Complexity:** `O(n log n)`",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 18,
             "dislikes": 2
           },
@@ -309,7 +309,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:22:30",
             "timestampSeconds": 1350,
             "description": "**Divide and conquer** paradigm applied to sorting. Split, conquer, and combine approach.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 24,
             "dislikes": 1
           },
@@ -319,7 +319,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:28:45",
             "timestampSeconds": 1725,
             "description": "Visualizing merge sort's recursion tree to understand the `O(n log n)` time complexity.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 20,
             "dislikes": 0
           },
@@ -329,7 +329,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:35:10",
             "timestampSeconds": 2110,
             "description": "Discussion of space complexity trade-offs in sorting algorithms. Merge sort requires extra space.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 17,
             "dislikes": 2
           },
@@ -339,7 +339,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:41:20",
             "timestampSeconds": 2480,
             "description": "Why merge sort is **stable** and why this property matters in real-world applications.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 19,
             "dislikes": 1
           }
@@ -382,7 +382,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:40:10",
             "timestampSeconds": 2410,
             "description": "Discussion on handling hash collisions using:\n1. Chaining\n2. Open Addressing",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 22,
             "dislikes": 0
           },
@@ -392,7 +392,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:15:30",
             "timestampSeconds": 930,
             "description": "**Properties of good hash functions**: uniform distribution, fast computation, and minimal collisions.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 26,
             "dislikes": 1
           },
@@ -402,7 +402,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:25:45",
             "timestampSeconds": 1545,
             "description": "Understanding load factor `α = n/m` and its impact on hash table performance.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 21,
             "dislikes": 0
           },
@@ -412,7 +412,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:48:20",
             "timestampSeconds": 2900,
             "description": "**Linear probing** as a collision resolution method. Simple but can lead to clustering.",
-            "author": "Prof. Erik Demaine",
+            "author": "code_wizard",
             "likes": 19,
             "dislikes": 2
           },
@@ -422,7 +422,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:52:10",
             "timestampSeconds": 3130,
             "description": "**Double hashing** technique to reduce clustering in open addressing schemes.",
-            "author": "Prof. Srini Devadas",
+            "author": "algo_master",
             "likes": 18,
             "dislikes": 1
           }
@@ -440,7 +440,7 @@ const initialCourseData: CourseData = {
         "date": "2016-10-06",
         "videoId": "VPZD_aij8H0",
         "anchors": [],
-        "isFavorited": false
+        "isFavorited": true
       },
       {
         "id": "1750451950102",
@@ -524,7 +524,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:02:00",
             "timestampSeconds": 120,
             "description": "Welcome to the Kanji learning journey! This lesson covers fundamental stroke order and basic radicals.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 45,
             "dislikes": 2
           },
@@ -534,7 +534,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:05:30",
             "timestampSeconds": 330,
             "description": "**Mastering stroke order** is crucial for proper Kanji writing. These rules apply to all Kanji characters.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 38,
             "dislikes": 1
           },
@@ -544,7 +544,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:12:15",
             "timestampSeconds": 735,
             "description": "Understanding the **radical system** is key to Kanji mastery. Radicals are building blocks that appear in multiple characters.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 42,
             "dislikes": 0
           }
@@ -578,7 +578,7 @@ const initialCourseData: CourseData = {
             "description": "**Effective practice methods**:\n\n- [ ] Write each Kanji 10 times\n- [ ] Use [Kanji Study](https://kanjistudy.com) app\n- [ ] Practice with [Anki](https://apps.ankiweb.net/) flashcards\n- [ ] Read simple texts daily\n\nConsistency is key!"
           }
         ],
-        "isFavorited": false,
+        "isFavorited": true,
         "globalAnchors": [
           {
             "id": "ga_kanji_2_1",
@@ -586,7 +586,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:14:10",
             "timestampSeconds": 850,
             "description": "Understanding **On-yomi and Kun-yomi** is essential for proper Kanji pronunciation and usage.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 52,
             "dislikes": 3
           },
@@ -596,7 +596,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:07:20",
             "timestampSeconds": 440,
             "description": "**Compound Kanji words** are the foundation of Japanese vocabulary. Most words use 2-4 Kanji characters.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 48,
             "dislikes": 1
           },
@@ -606,7 +606,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:22:30",
             "timestampSeconds": 1350,
             "description": "Recommended tools and resources for effective Kanji study and practice.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 39,
             "dislikes": 2
           }
@@ -650,7 +650,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:06:45",
             "timestampSeconds": 405,
             "description": "**Complex radicals** that appear in multiple Kanji characters. Understanding these helps with memorization and meaning inference.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 41,
             "dislikes": 1
           },
@@ -660,7 +660,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:15:20",
             "timestampSeconds": 920,
             "description": "**Context-based learning** strategies for understanding Kanji in real-world situations.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 47,
             "dislikes": 2,
           },
@@ -670,7 +670,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:24:10",
             "timestampSeconds": 1450,
             "description": "Common mistakes students make when learning Kanji and how to avoid them.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 44,
             "dislikes": 0,
             
@@ -715,7 +715,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:08:15",
             "timestampSeconds": 495,
             "description": "**JLPT N4 Kanji** preparation. These characters are essential for the Japanese Language Proficiency Test.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 56,
             "dislikes": 1
           },
@@ -725,7 +725,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:16:30",
             "timestampSeconds": 990,
             "description": "**Proven memorization techniques** for learning and retaining Kanji characters effectively.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 49,
             "dislikes": 2
           },
@@ -735,7 +735,7 @@ const initialCourseData: CourseData = {
             "timestamp": "00:25:45",
             "timestampSeconds": 1545,
             "description": "**Recommended reading materials** for practicing Kanji in context and improving overall Japanese skills.",
-            "author": "Prof. Tanaka",
+            "author": "kanji_sensei",
             "likes": 43,
             "dislikes": 1
           }

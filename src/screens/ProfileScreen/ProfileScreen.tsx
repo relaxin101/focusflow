@@ -13,8 +13,8 @@ export const ProfileScreen = (): JSX.Element => {
 
   // Mock user data
   const user = {
-    name: "John Doe",
-    email: "john.doe@student.university.edu",
+    name: "Chris Doe",
+    email: "chris.doe@student.university.edu",
     studentId: "12345678",
     phone: "+1 (555) 123-4567",
     address: "123 University Ave, College Town, ST 12345",
