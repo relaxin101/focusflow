@@ -40,11 +40,36 @@ export const LectureOverviewScreen = (): JSX.Element => {
         return matchesSearch && matchesLiveFilter && matchesUnwatchedFilter;
       })
       .sort((a, b) => {
-        const [dayA, monthA, yearA] = a.date.split('.').map(Number);
-        const [dayB, monthB, yearB] = b.date.split('.').map(Number);
-        const dateA = new Date(yearA, monthA - 1, dayA);
-        const dateB = new Date(yearB, monthB - 1, dayB);
-        return dateB.getTime() - dateA.getTime();
+        // Handle both DD.MM.YYYY and YYYY-MM-DD formats
+        let dateA: Date, dateB: Date;
+        
+        if (a.date.includes('-')) {
+          // YYYY-MM-DD format
+          dateA = new Date(a.date);
+        } else {
+          // DD.MM.YYYY format
+          const [dayA, monthA, yearA] = a.date.split('.').map(Number);
+          dateA = new Date(yearA, monthA - 1, dayA);
+        }
+        
+        if (b.date.includes('-')) {
+          // YYYY-MM-DD format
+          dateB = new Date(b.date);
+        } else {
+          // DD.MM.YYYY format
+          const [dayB, monthB, yearB] = b.date.split('.').map(Number);
+          dateB = new Date(yearB, monthB - 1, dayB);
+        }
+        
+        // First sort by date (descending)
+        const dateComparison = dateB.getTime() - dateA.getTime();
+        
+        // If dates are equal, sort by title lexicographically descending
+        if (dateComparison === 0) {
+          return b.title.localeCompare(a.title);
+        }
+        
+        return dateComparison;
       });
   }, [course, searchQuery, filters]);
 
