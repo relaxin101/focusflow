@@ -48,6 +48,10 @@ export const AdminScreen = () => {
   const [globalAnchorDescription, setGlobalAnchorDescription] = useState("");
   const [globalAnchorAuthor, setGlobalAnchorAuthor] = useState("");
 
+  const handleDumpContext = () => {
+    console.log("Dumping CourseContext:", JSON.stringify(courseData, null, 2));
+  };
+
   // Add a new course
   const handleAddCourse = () => {
     if (!newCourseId.trim() || !newCourseTitle.trim()) return;
@@ -125,9 +129,12 @@ export const AdminScreen = () => {
         <h1 className={`text-2xl font-bold transition-colors duration-200 ${
           isDarkMode ? 'text-white' : 'text-black'
         }`}>Admin Panel</h1>
-        <Link to="/profile">
-          <Button variant="ghost">Back to Profile</Button>
-        </Link>
+        <div>
+          <Button onClick={handleDumpContext} className="mr-2">Dump Context</Button>
+          <Link to="/profile">
+            <Button variant="ghost">Back to Profile</Button>
+          </Link>
+        </div>
       </div>
       <Card className={`mb-6 transition-colors duration-200 ${
         isDarkMode ? 'border-[#4f545c] bg-[#2f3136]' : 'border-gray-200 bg-white'
